@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:orientation="vertical" >
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:id="@+id/title"
+        android:background="@drawable/title_bar"
+        android:gravity="center_vertical"  >
+        <Button
+            android:id="@+id/BtnRecord"
+            android:text="记录"
+            android:textColor="#fff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/title_btn_right"
+            android:onClick="onRecordBtnClick"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="数据"
+            android:layout_centerInParent="true"
+            android:textSize="20sp"
+            android:textColor="#fff"
+            android:id="@+id/textView" />
+        <Button
+            android:id="@+id/BtnOutput"
+            android:text="输出内容"
+            android:textColor="#fff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/title_btn_right"
+            android:onClick="OnClickConfig"
+            />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:background="@drawable/preference_first_item"
+        >
+        <TextView
+            android:id="@+id/tvDataName1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="X轴："
+            android:textSize="17sp"
+            android:textColor="#000"/>
+
+        <TextView
+            android:id="@+id/tvNum1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="0"
+            android:textSize="17sp"
+            android:textColor="#000"
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:background="@drawable/preference_item" >
+        <TextView
+            android:id="@+id/tvDataName2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="Y轴："
+            android:textSize="17sp"
+            android:textColor="#000"/>
+
+        <TextView
+            android:id="@+id/tvNum2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="0"
+            android:textSize="17sp"
+            android:textColor="#000"
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:background="@drawable/preference_item" >
+        <TextView
+            android:id="@+id/tvDataName3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="Z轴："
+            android:textSize="17sp"
+            android:textColor="#000" />
+
+        <TextView
+            android:id="@+id/tvNum3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="0"
+            android:textSize="17sp"
+            android:textColor="#000"
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/preference_last_item" >
+        <TextView
+            android:id="@+id/tvDataName4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="温度："
+            android:textSize="17sp"
+            android:textColor="#000"/>
+
+        <TextView
+            android:id="@+id/tvNum4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="0"
+            android:textSize="17sp"
+            android:textColor="#000"
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_weight="1">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="时间"
+            android:onClick="ControlClick"
+            android:id="@+id/button0"
+            android:background="@drawable/ic_preference_single_normal" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="加速度"
+            android:onClick="ControlClick"
+            android:id="@+id/button1"
+            android:background="@drawable/ic_preference_single_normal" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="角速度"
+            android:onClick="ControlClick"
+            android:id="@+id/button2"
+            android:background="@drawable/ic_preference_single_normal" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="角度"
+            android:onClick="ControlClick"
+            android:id="@+id/button3"
+            android:background="@drawable/ic_preference_single_pressed" />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_weight="1">
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="磁场"
+            android:onClick="ControlClick"
+            android:id="@+id/button4"
+            android:background="@drawable/ic_preference_single_normal" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="端口"
+            android:onClick="ControlClick"
+            android:id="@+id/button5"
+            android:background="@drawable/ic_preference_single_normal" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="气压"
+            android:onClick="ControlClick"
+            android:id="@+id/button6"
+            android:background="@drawable/ic_preference_single_normal" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="经纬度"
+            android:onClick="ControlClick"
+            android:id="@+id/button7"
+            android:background="@drawable/ic_preference_single_normal" />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:layout_weight="0.95">
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="地速"
+            android:onClick="ControlClick"
+            android:id="@+id/button8"
+            android:background="@drawable/ic_preference_single_normal" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="四元数"
+            android:onClick="ControlClick"
+            android:id="@+id/button9"
+            android:background="@drawable/ic_preference_single_normal" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="卫星数"
+            android:onClick="ControlClick"
+            android:id="@+id/buttonA"
+            android:background="@drawable/ic_preference_single_normal" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:id="@+id/buttonB"
+            android:background="@drawable/ic_preference_single_normal" />
+
+    </LinearLayout>
+
+</LinearLayout>

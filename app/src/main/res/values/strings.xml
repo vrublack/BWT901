@@ -1,0 +1,30 @@
+<resources>
+
+    <string name="app_name">mini IWU</string>
+    
+    <!--  BluetoothChat -->
+    <string name="send">Send</string>
+    <string name="not_connected">你没有连接到一个设备</string>
+    <string name="bt_not_enabled_leaving">蓝牙未被打开</string>
+    <string name="title_connecting">正在连接...</string>
+    <string name="title_connected_to">已连接: </string>
+    <string name="title_not_connected">断开</string>
+    
+    <!--  DeviceListActivity -->
+    <string name="scanning">搜索设备...</string>
+    <string name="select_device">选择一个设备</string>
+    <string name="none_paired">无已经匹配的设备</string>
+    <string name="none_found">未发现设备</string>
+    <string name="title_paired_devices">已匹配的设备</string>
+    <string name="title_other_devices">其他可匹配的设备</string>
+    <string name="button_scan">搜索设备</string>
+    
+    
+    <!-- Options Menu -->
+    <string name="connect">连接设备</string>
+    <string name="discoverable">使设备可访问</string>
+    
+    
+    <string name="main_textview">0.00</string>
+    <string name="shop_name">君悦智控</string>
+</resources>
