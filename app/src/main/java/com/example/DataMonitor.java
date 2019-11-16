@@ -165,7 +165,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 
 		selected = new boolean[]{false,true,true,true,false,false,false,false,false,false,false};
 		SelectItem = new String[]{getString(R.string.time),getString(R.string.acc),getString(R.string.angv),getString(R.string.ang),
-				getString(R.string.magn),getString(R.string.port), getString(R.string.pressure), getString(R.string.long_lat), getString(R.string.speed), getString(R.string.val15), getString(R.string.val16)};
+				getString(R.string.magn),getString(R.string.port), getString(R.string.pressure), getString(R.string.long_lat), getString(R.string.speed), getString(R.string.quaternion), getString(R.string.val16)};
 
 		try {
 			mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();

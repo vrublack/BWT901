@@ -146,7 +146,7 @@ public class BluetoothService {
 		// Send a failure message back to the Activity
 		Message msg = mHandler.obtainMessage(DataMonitor.MESSAGE_TOAST);
 		Bundle bundle = new Bundle();
-		bundle.putString("toast", "未能连接设备");
+		bundle.putString("toast", mContext.getString(R.string.connect_failed));
 		msg.setData(bundle);
 		mHandler.sendMessage(msg);
 	}

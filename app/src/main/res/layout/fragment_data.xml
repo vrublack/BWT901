@@ -12,7 +12,7 @@
         android:gravity="center_vertical"  >
         <Button
             android:id="@+id/BtnRecord"
-            android:text="记录"
+            android:text="@string/record"
             android:textColor="#fff"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -24,14 +24,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="数据"
+            android:text="@string/data"
             android:layout_centerInParent="true"
             android:textSize="20sp"
             android:textColor="#fff"
             android:id="@+id/textView" />
         <Button
             android:id="@+id/BtnOutput"
-            android:text="输出内容"
+            android:text="@string/output"
             android:textColor="#fff"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -54,7 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:text="X轴："
+            android:text="@string/xaxis"
             android:textSize="17sp"
             android:textColor="#000"/>
 
@@ -79,7 +79,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:text="Y轴："
+            android:text="@string/yaxis"
             android:textSize="17sp"
             android:textColor="#000"/>
 
@@ -105,7 +105,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:text="Z轴："
+            android:text="@string/zaxis"
             android:textSize="17sp"
             android:textColor="#000" />
 
@@ -131,7 +131,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:text="温度："
+            android:text="@string/temperature_"
             android:textSize="17sp"
             android:textColor="#000"/>
 
@@ -156,7 +156,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="时间"
+            android:text="@string/time"
             android:onClick="ControlClick"
             android:id="@+id/button0"
             android:background="@drawable/ic_preference_single_normal" />
@@ -164,7 +164,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="加速度"
+            android:text="@string/acc"
             android:onClick="ControlClick"
             android:id="@+id/button1"
             android:background="@drawable/ic_preference_single_normal" />
@@ -172,7 +172,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="角速度"
+            android:text="@string/angv"
             android:onClick="ControlClick"
             android:id="@+id/button2"
             android:background="@drawable/ic_preference_single_normal" />
@@ -180,7 +180,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="角度"
+            android:text="@string/ang"
             android:onClick="ControlClick"
             android:id="@+id/button3"
             android:background="@drawable/ic_preference_single_pressed" />
@@ -195,7 +195,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="磁场"
+            android:text="@string/magn"
             android:onClick="ControlClick"
             android:id="@+id/button4"
             android:background="@drawable/ic_preference_single_normal" />
@@ -203,7 +203,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="端口"
+            android:text="@string/port"
             android:onClick="ControlClick"
             android:id="@+id/button5"
             android:background="@drawable/ic_preference_single_normal" />
@@ -211,7 +211,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="气压"
+            android:text="@string/pressure"
             android:onClick="ControlClick"
             android:id="@+id/button6"
             android:background="@drawable/ic_preference_single_normal" />
@@ -219,7 +219,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="经纬度"
+            android:text="@string/long_lat"
             android:onClick="ControlClick"
             android:id="@+id/button7"
             android:background="@drawable/ic_preference_single_normal" />
@@ -235,7 +235,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="地速"
+            android:text="@string/speed"
             android:onClick="ControlClick"
             android:id="@+id/button8"
             android:background="@drawable/ic_preference_single_normal" />
@@ -243,7 +243,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="四元数"
+            android:text="@string/quaternion"
             android:onClick="ControlClick"
             android:id="@+id/button9"
             android:background="@drawable/ic_preference_single_normal" />
@@ -251,7 +251,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="卫星数"
+            android:text="@string/satellites"
             android:onClick="ControlClick"
             android:id="@+id/buttonA"
             android:background="@drawable/ic_preference_single_normal" />

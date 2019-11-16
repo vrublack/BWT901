@@ -1,61 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">mini IWU</string>
-    
-    <!--  BluetoothChat -->
-    <string name="send">Send</string>
-    <string name="not_connected">你没有连接到一个设备</string>
-    <string name="bt_not_enabled_leaving">蓝牙未被打开</string>
-    <string name="title_connecting">正在连接...</string>
-    <string name="title_connected_to">已连接: </string>
-    <string name="title_not_connected">断开</string>
-    
-    <!--  DeviceListActivity -->
-    <string name="scanning">搜索设备...</string>
-    <string name="select_device">选择一个设备</string>
-    <string name="none_paired">无已经匹配的设备</string>
-    <string name="none_found">未发现设备</string>
-    <string name="title_paired_devices">已匹配的设备</string>
-    <string name="title_other_devices">其他可匹配的设备</string>
-    <string name="button_scan">搜索设备</string>
-    
-    
-    <!-- Options Menu -->
-    <string name="connect">连接设备</string>
-    <string name="discoverable">使设备可访问</string>
-    
-    
+    <string name="not_connected">"You are not connected to a device   "</string>
+    <string name="bt_not_enabled_leaving">Bluetooth is off</string>
+    <string name="title_connecting">Connecting...</string>
+    <string name="title_connected_to">"Connected: "</string>
+    <string name="title_not_connected">Disconnected</string>
+    <string name="scanning">"Scanning for devices...   "</string>
+    <string name="select_device">"Choose a device   "</string>
+    <string name="none_paired">No paired devices</string>
+    <string name="none_found">No device found</string>
+    <string name="title_paired_devices">Paired device</string>
+    <string name="title_other_devices">Other compatible devices</string>
+    <string name="button_scan">Scan devices</string>
+    <string name="connect">Connect device</string>
+    <string name="discoverable">Make device discoverable</string>
     <string name="main_textview">0.00</string>
-    <string name="shop_name">君悦智控</string>
-    <string name="start_time">开始时间：</string>
-    <string name="acc">加速度</string>
-    <string name="angv">角速度</string>
-    <string name="ang">角度</string>
-    <string name="magn">磁场</string>
-    <string name="port">端口</string>
-    <string name="pressure">气压</string>
-    <string name="height">高度</string>
-    <string name="longitude">经度</string>
-    <string name="latitude">纬度</string>
-    <string name="altitude">海拔</string>
-    <string name="course">航向</string>
-    <string name="speed">地速</string>
-    <string name="satellites">星数</string>
-    <string name="msg1">蓝牙不可用</string>
-    <string name="time">时间</string>
-    <string name="long_lat">经纬度</string>
-    <string name="val15">四元数</string>
-    <string name="val16">卫星数</string>
-    <string name="msg2">请选择输出内容：</string>
-    <string name="cancel">取消</string>
-    <string name="date">日期：</string>
-    <string name="time_">时间：</string>
-    <string name="axis">轴</string>
-    <string name="degrees">温度</string>
-    <string name="stop">停止</string>
-    <string name="record">记录</string>
-    <string name="prompt">提示</string>
-    <string name="msg3">数据已经记录至手机根目录</string>
-    <string name="msg4">是否打开已保存的文件</string>
-    <string name="confirm">确定</string>
+    <string name="send">Send</string>
+    <string name="start_time">Start time:</string>
+    <string name="acc">Acceleration</string>
+    <string name="angv">Angular velocity</string>
+    <string name="ang">Angle</string>
+    <string name="magn">Magnetic field</string>
+    <string name="port">Port</string>
+    <string name="pressure">Air pressure</string>
+    <string name="height">Height</string>
+    <string name="longitude">Longitude</string>
+    <string name="latitude">Latitude</string>
+    <string name="altitude">Altitude</string>
+    <string name="course">Course</string>
+    <string name="speed">Ground speed</string>
+    <string name="satellites">"Number of satellites "</string>
+    <string name="msg1">Bluetooth is not available</string>
+    <string name="time">Time</string>
+    <string name="long_lat">Long/Latitude</string>
+    <string name="quaternion">Quaternion</string>
+    <string name="val16">Number of satellites</string>
+    <string name="msg2">"Please select the output: "</string>
+    <string name="cancel">Cancel</string>
+    <string name="date">"Date: "</string>
+    <string name="time_">"Time: "</string>
+    <string name="axis">Axis</string>
+    <string name="degrees">Temperature</string>
+    <string name="stop">Stop</string>
+    <string name="record">Record</string>
+    <string name="prompt">Prompt</string>
+    <string name="msg3">Data has been logged to the phone root directory</string>
+    <string name="msg4">Open saved file</string>
+    <string name="confirm">Confirm</string>
+    <string name="shop_name">Sensor Control</string>
+    <string name="data">Data</string>
+    <string name="output">Fields</string>
+    <string name="xaxis">X axis：</string>
+    <string name="yaxis">Y axis：</string>
+    <string name="zaxis">Z axis：</string>
+    <string name="temperature_">Temperature：</string>
+    <string name="connect_failed">Failed to connect</string>
 </resources>
