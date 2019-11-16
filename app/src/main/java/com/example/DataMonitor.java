@@ -31,7 +31,6 @@ import android.widget.Toast;
 
 public class DataMonitor extends FragmentActivity implements OnClickListener {
 
-    private static final int PERMISSIONS_REQUEST_WRITE_STORAGE = 1;
     boolean slideAction = false;
 	private BluetoothAdapter mBluetoothAdapter = null;
 	private BluetoothService mBluetoothService = null;
@@ -437,18 +436,10 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 	public void onRecordBtnClick(View v) {
 		if (!this.recordStartorStop)
 		{
-			if (ContextCompat.checkSelfPermission(this,
-					Manifest.permission.WRITE_EXTERNAL_STORAGE)
-					!= PackageManager.PERMISSION_GRANTED) {
-
-					// No explanation needed; request the permission
-					ActivityCompat.requestPermissions(this,
-							new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-							PERMISSIONS_REQUEST_WRITE_STORAGE);
-			} else {
-				// Permission has already been granted
-                startRecording();
-            }
+            this.recordStartorStop = true;
+            mBluetoothService.setRecord(true);
+            ((Button) findViewById(R.id.BtnRecord)).setText(R.string.stop);
+            ((Button) findViewById(R.id.BtnRecord)).setTextColor(Color.RED);
 		}
 		else{
 			this.recordStartorStop = false;
@@ -473,28 +464,8 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 		}
 	}
 
-    private void startRecording() {
-        this.recordStartorStop = true;
-        mBluetoothService.setRecord(true);
-        ((Button) findViewById(R.id.BtnRecord)).setText(R.string.stop);
-        ((Button) findViewById(R.id.BtnRecord)).setTextColor(Color.RED);
-    }
-
     @Override
 	public void onClick(View v) {
 
 	}
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_WRITE_STORAGE: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startRecording();
-                };
-            }
-        }
-    }
-
 }
