@@ -1,5 +1,6 @@
 package com.example;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -188,6 +190,7 @@ public class BluetoothService {
 					// This is a blocking call and will only return on a successful connection or an exception
 					socket = mmServerSocket.accept();
 				} catch (IOException e) {
+					e.printStackTrace();
 					break;
 				}
 
@@ -205,7 +208,9 @@ public class BluetoothService {
 							try {
 								socket.close();
 							} 
-							catch (IOException e) {}
+							catch (IOException e) {
+                                e.printStackTrace();
+                            }
 							break;
 						}
 					}
@@ -219,7 +224,9 @@ public class BluetoothService {
 			try {
 				mmServerSocket.close();
 			} 
-			catch (IOException e) {}
+			catch (IOException e) {
+                e.printStackTrace();
+            }
 		}
 	}
 
@@ -238,7 +245,9 @@ public class BluetoothService {
 			try {
 				tmp = device.createRfcommSocketToServiceRecord(MY_UUID);// Get a BluetoothSocket for a connection with the given BluetoothDevice
 			} 
-			catch (IOException e) {}
+			catch (IOException e) {
+                e.printStackTrace();
+            }
 			mmSocket = tmp;
 		}
 
@@ -252,10 +261,13 @@ public class BluetoothService {
 				mmSocket.connect();// This is a blocking call and will only return on a successful connection or an exception
 			} 
 			catch (IOException e) {
-				connectionFailed();				
+                e.printStackTrace();
+                connectionFailed();
 				try {
 					mmSocket.close();
-				} catch (IOException e2) {}
+				} catch (IOException e2) {
+                    e.printStackTrace();
+                }
 				
 				BluetoothService.this.start();// 引用来说明要调用的是外部类的方法 run
 				return;
@@ -271,7 +283,7 @@ public class BluetoothService {
 			try {
 				mmSocket.close();
 			} catch (IOException e) {
-
+                e.printStackTrace();
 			}
 		}
 	}
@@ -295,7 +307,9 @@ public class BluetoothService {
 			try {
 				tmpIn = socket.getInputStream();
 				tmpOut = socket.getOutputStream();
-			} catch (IOException e) {}
+			} catch (IOException e) {
+                e.printStackTrace();
+            }
 
 			mmInStream = tmpIn;
 			mmOutStream = tmpOut;
@@ -414,7 +428,8 @@ public class BluetoothService {
 					}
 
 				} catch (IOException e) {
-					connectionLost();
+                    e.printStackTrace();
+                    connectionLost();
 					break;
 				}
 			}
@@ -424,13 +439,17 @@ public class BluetoothService {
 			try {
 				mmOutStream.write(buffer);
 				mHandler.obtainMessage(DataMonitor.MESSAGE_WRITE, -1, -1,buffer).sendToTarget();// Share the sent message back to the UI Activity
-			} catch (IOException e) {}
+			} catch (IOException e) {
+                e.printStackTrace();
+            }
 		}
 
 		public void cancel() {
 			try {
 				mmSocket.close();
-			} catch (IOException e) {}
+			} catch (IOException e) {
+                e.printStackTrace();
+            }
 		}
 	}
 	MyFile myFile;
@@ -449,11 +468,12 @@ public class BluetoothService {
 		sDataSave = sData;
 		switch (SaveState) {
 		case 0:
-			myFile.Close();
+		    if (myFile != null)
+			    myFile.Close();
 			SaveState = -1;
 			break;
 		case 1:
-			myFile=new MyFile("/mnt/sdcard/Record.txt");
+			myFile=new MyFile("Record.txt", mContext);
 			DateFormat formatter = SimpleDateFormat.getDateTimeInstance();
 			Date curDate = new Date(System.currentTimeMillis());
 			String s=mContext.getString(R.string.start_time)+formatter.format(curDate)+"\r\n" ;
@@ -484,13 +504,13 @@ public class BluetoothService {
 	{
 		if (record) SaveState = 1;
 		else SaveState = 0;
-		
 	}
 }
 class MyFile{
 	FileOutputStream fout;
-	public MyFile(String fileName) throws FileNotFoundException{
-		fout = new FileOutputStream(fileName,false);
+	public MyFile(String fileName, Context context) throws FileNotFoundException{
+	    File path = new File(context.getExternalFilesDir(null), fileName);
+		fout = new FileOutputStream(path ,false);
 	}
 	public void Write( String str) throws IOException {		
 			byte[] bytes = str.getBytes();

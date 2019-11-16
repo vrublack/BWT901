@@ -1,6 +1,8 @@
 package com.example;
 
 import java.io.File;
+
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -9,12 +11,15 @@ import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
@@ -26,7 +31,8 @@ import android.widget.Toast;
 
 public class DataMonitor extends FragmentActivity implements OnClickListener {
 
-	boolean slideAction = false;
+    private static final int PERMISSIONS_REQUEST_WRITE_STORAGE = 1;
+    boolean slideAction = false;
 	private BluetoothAdapter mBluetoothAdapter = null;
 	private BluetoothService mBluetoothService = null;
 	private String mConnectedDeviceName = null;
@@ -153,7 +159,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 
 	private static final int REQUEST_CONNECT_DEVICE = 1;
 
-	@Override
+    @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
@@ -182,7 +188,8 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 			startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
 		}
 		catch (Exception err){}
-	}
+    }
+
 	public void onClickedBTSet(View v){
 		try {
 			if (!mBluetoothAdapter.isEnabled()) mBluetoothAdapter.enable();
@@ -428,12 +435,20 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 		((Button) v).setBackgroundResource(R.drawable.ic_preference_single_pressed);
 	}
 	public void onRecordBtnClick(View v) {
-		if (this.recordStartorStop == false)
+		if (!this.recordStartorStop)
 		{
-			this.recordStartorStop = true;
-			mBluetoothService.setRecord(true);
-			((Button)v).setText(R.string.stop);
-			((Button)findViewById(R.id.BtnRecord)).setTextColor(Color.RED);
+			if (ContextCompat.checkSelfPermission(this,
+					Manifest.permission.WRITE_EXTERNAL_STORAGE)
+					!= PackageManager.PERMISSION_GRANTED) {
+
+					// No explanation needed; request the permission
+					ActivityCompat.requestPermissions(this,
+							new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+							PERMISSIONS_REQUEST_WRITE_STORAGE);
+			} else {
+				// Permission has already been granted
+                startRecording();
+            }
 		}
 		else{
 			this.recordStartorStop = false;
@@ -457,9 +472,29 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 					.show();
 		}
 	}
-	@Override
+
+    private void startRecording() {
+        this.recordStartorStop = true;
+        mBluetoothService.setRecord(true);
+        ((Button) findViewById(R.id.BtnRecord)).setText(R.string.stop);
+        ((Button) findViewById(R.id.BtnRecord)).setTextColor(Color.RED);
+    }
+
+    @Override
 	public void onClick(View v) {
 
 	}
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_WRITE_STORAGE: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startRecording();
+                };
+            }
+        }
+    }
 
 }
