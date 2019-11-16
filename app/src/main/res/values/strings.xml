@@ -27,4 +27,35 @@
     
     <string name="main_textview">0.00</string>
     <string name="shop_name">君悦智控</string>
+    <string name="start_time">开始时间：</string>
+    <string name="acc">加速度</string>
+    <string name="angv">角速度</string>
+    <string name="ang">角度</string>
+    <string name="magn">磁场</string>
+    <string name="port">端口</string>
+    <string name="pressure">气压</string>
+    <string name="height">高度</string>
+    <string name="longitude">经度</string>
+    <string name="latitude">纬度</string>
+    <string name="altitude">海拔</string>
+    <string name="course">航向</string>
+    <string name="speed">地速</string>
+    <string name="satellites">星数</string>
+    <string name="msg1">蓝牙不可用</string>
+    <string name="time">时间</string>
+    <string name="long_lat">经纬度</string>
+    <string name="val15">四元数</string>
+    <string name="val16">卫星数</string>
+    <string name="msg2">请选择输出内容：</string>
+    <string name="cancel">取消</string>
+    <string name="date">日期：</string>
+    <string name="time_">时间：</string>
+    <string name="axis">轴</string>
+    <string name="degrees">温度</string>
+    <string name="stop">停止</string>
+    <string name="record">记录</string>
+    <string name="prompt">提示</string>
+    <string name="msg3">数据已经记录至手机根目录</string>
+    <string name="msg4">是否打开已保存的文件</string>
+    <string name="confirm">确定</string>
 </resources>

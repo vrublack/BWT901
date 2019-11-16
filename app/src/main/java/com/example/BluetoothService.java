@@ -1,35 +1,25 @@
 package com.example;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.Time;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.UUID;
 
-import android.R.bool;
-import android.R.integer;
-import android.R.string;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.StaticLayout;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.Queue;
 
@@ -41,6 +31,7 @@ public class BluetoothService {
 	private static final String NAME = "BluetoothData";
 
 	private final BluetoothAdapter mAdapter;
+	private Context mContext;
 	private final Handler mHandler;
 	private AcceptThread mAcceptThread;// 请求连接的监听进程
 	private ConnectThread mConnectThread;// 连接一个设备的进程
@@ -61,6 +52,7 @@ public class BluetoothService {
 		mAdapter = BluetoothAdapter.getDefaultAdapter();
 		mState = STATE_NONE;
 		mHandler = handler;
+		mContext = context;
 	}
 	public void Send(byte[] buffer){
 		if (mState==STATE_CONNECTED)
@@ -462,19 +454,19 @@ public class BluetoothService {
 			break;
 		case 1:
 			myFile=new MyFile("/mnt/sdcard/Record.txt");
-			SimpleDateFormat formatter = new SimpleDateFormat ("yyyy年MM月dd日 HH:mm:ss ");
-			Date curDate = new Date(System.currentTimeMillis());//获取当前时间
-			String s="开始时间："+formatter.format(curDate)+"\r\n" ;
-			if ((IDSave&0x02)>0) s+= "  加速度X： 加速度Y： 加速度Z：" ;
-			if ((IDSave&0x04)>0) s+="  角速度X： 角速度Y： 角速度Z：";
-			if ((IDSave&0x08)>0) s+="    角度X：   角度Y：   角度Z：";
-			if ((IDSave&0x10)>0) s+="   磁场X：   磁场Y：   磁场Z：";
-			if ((IDSave&0x20)>0) s+="端口0：端口1：端口2：端口3：";
-			if ((IDSave&0x40)>0) s+="    气压：    高度：";
-			if ((IDSave&0x80)>0) s+="        经度：        纬度：";
-			if ((IDSave&0x100)>0) s+="    海拔：    航向：    地速：";
+			DateFormat formatter = SimpleDateFormat.getDateTimeInstance();
+			Date curDate = new Date(System.currentTimeMillis());
+			String s=mContext.getString(R.string.start_time)+formatter.format(curDate)+"\r\n" ;
+			if ((IDSave&0x02)>0) s+= String.format("  %sX： %<sY： %<sZ：", mContext.getString(R.string.acc));
+			if ((IDSave&0x04)>0) s+= String.format("  %sX： %<sY： %<sZ：", mContext.getString(R.string.angv));
+			if ((IDSave&0x08)>0) s+= String.format("    %sX：   %<sY：   %<sZ：", mContext.getString(R.string.ang));
+			if ((IDSave&0x10)>0) s+= String.format("   %sX：   $<sY：   %<sZ：", mContext.getString(R.string.magn));
+			if ((IDSave&0x20)>0) s+= String.format("%s0：%<s1：%<s2：%<s3：", mContext.getString(R.string.port));
+			if ((IDSave&0x40)>0) s+= String.format("    %s：    %s：", mContext.getString(R.string.pressure), mContext.getString(R.string.height));
+			if ((IDSave&0x80)>0) s+= String.format("        %s：        %s：", mContext.getString(R.string.longitude), mContext.getString(R.string.latitude));
+			if ((IDSave&0x100)>0) s+= String.format("    %s：    %s：    %s：", mContext.getString(R.string.altitude), mContext.getString(R.string.course), mContext.getString(R.string.speed));
 			if ((IDSave&0x200)>0) s+="   q0：   q1：   q2：   q3：";
-			if ((IDSave&0x400)>0) s+="星数：PDOP： HDOP： VDOP：";
+			if ((IDSave&0x400)>0) s+= String.format("%s：PDOP： HDOP： VDOP：", mContext.getString(R.string.satellites));
 			myFile.Write(s+"\r\n");
 			if (Repeat)  {myFile.Write(str);SaveState = 2;}
 			break;

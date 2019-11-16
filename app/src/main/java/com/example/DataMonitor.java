@@ -45,6 +45,9 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 	protected static final String TAG = null;
 	private short sOffsetAccX,sOffsetAccY,sOffsetAccZ;
 
+	boolean[] selected;
+	String[] SelectItem;
+
 	private final Handler mHandler = new Handler() {
 		// 匿名内部类写法，实现接口Handler的一些方法
 		@Override
@@ -160,10 +163,14 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 		mTitle = (TextView) findViewById(R.id.title_right_text);
 		SelectFragment(0);
 
+		selected = new boolean[]{false,true,true,true,false,false,false,false,false,false,false};
+		SelectItem = new String[]{getString(R.string.time),getString(R.string.acc),getString(R.string.angv),getString(R.string.ang),
+				getString(R.string.magn),getString(R.string.port), getString(R.string.pressure), getString(R.string.long_lat), getString(R.string.speed), getString(R.string.val15), getString(R.string.val16)};
+
 		try {
 			mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 			if (mBluetoothAdapter == null) {
-				Toast.makeText(this, "蓝牙不可用", Toast.LENGTH_LONG).show();
+				Toast.makeText(this, getString(R.string.msg1), Toast.LENGTH_LONG).show();
 				//finish();
 				return;
 			}
@@ -239,17 +246,16 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 		switch (requestCode) {
-		case REQUEST_CONNECT_DEVICE:// When DeviceListActivity returns with a device to connect			
-			if (resultCode == Activity.RESULT_OK) {				
-				String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);// Get the device MAC address				
-				device = mBluetoothAdapter.getRemoteDevice(address);// Get the BLuetoothDevice object				
+		case REQUEST_CONNECT_DEVICE:// When DeviceListActivity returns with a device to connect
+			if (resultCode == Activity.RESULT_OK) {
+				String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);// Get the device MAC address
+				device = mBluetoothAdapter.getRemoteDevice(address);// Get the BLuetoothDevice object
 				mBluetoothService.connect(device);// Attempt to connect to the device
 			}
 			break;
 		}
 	}
-	boolean[] selected = new boolean[]{false,true,true,true,false,false,false,false,false,false,false};
-	String[] SelectItem = new String[]{"时间","加速度","角速度","角度","磁场","端口","气压","经纬度","地速","四元数","卫星数"};
+
 	public void RefreshButtonStatus(){
 		if (selected[0]) ((TextView)findViewById(R.id.button0)).setTextColor(Color.BLACK); else ((TextView)findViewById(R.id.button0)).setTextColor(Color.GRAY);
 		if (selected[1]) ((TextView)findViewById(R.id.button1)).setTextColor(Color.BLACK); else ((TextView)findViewById(R.id.button1)).setTextColor(Color.GRAY);
@@ -279,7 +285,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 
 		GetSelected();
 		new AlertDialog.Builder(this)
-				.setTitle("请选择输出内容：")
+				.setTitle(R.string.msg2)
 				.setIcon(android.R.drawable.ic_dialog_alert)
 				.setMultiChoiceItems(SelectItem, selected, new DialogInterface.OnMultiChoiceClickListener() {
 					@Override
@@ -287,7 +293,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 						selected[i] = b;
 					}
 				})
-				.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+				.setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface arg0, int arg1) {
 						byte[] buffer = new byte[5];
@@ -308,7 +314,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 						mBluetoothService.Send(buffer);
 					}
 				})
-				.setNegativeButton("取消", null)
+				.setNegativeButton(R.string.cancel, null)
 				.show();
 
 	}
@@ -321,42 +327,42 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 			case R.id.button0:
 				if (selected[0]==false) return;
 				iCurrentGroup=0;
-				((TextView)findViewById(R.id.tvDataName1)).setText("日期：");((TextView)findViewById(R.id.tvNum1)).setText("2015-1-1");
-				((TextView)findViewById(R.id.tvDataName2)).setText("时间：");((TextView)findViewById(R.id.tvNum2)).setText("00:00:00.0");
+				((TextView)findViewById(R.id.tvDataName1)).setText(R.string.date);((TextView)findViewById(R.id.tvNum1)).setText("2015-1-1");
+				((TextView)findViewById(R.id.tvDataName2)).setText(R.string.time_);((TextView)findViewById(R.id.tvNum2)).setText("00:00:00.0");
 				((TextView)findViewById(R.id.tvDataName3)).setText("");((TextView)findViewById(R.id.tvNum3)).setText("");
 				((TextView)findViewById(R.id.tvDataName4)).setText("");((TextView)findViewById(R.id.tvNum4)).setText("");
 				break;
 			case R.id.button1:
 				if (selected[1]==false) return;
 				iCurrentGroup=1;
-				((TextView)findViewById(R.id.tvDataName1)).setText("X轴：");((TextView)findViewById(R.id.tvNum1)).setText("0");
-				((TextView)findViewById(R.id.tvDataName2)).setText("Y轴：");((TextView)findViewById(R.id.tvNum2)).setText("0");
-				((TextView)findViewById(R.id.tvDataName3)).setText("Z轴：");((TextView)findViewById(R.id.tvNum3)).setText("0");
-				((TextView)findViewById(R.id.tvDataName4)).setText("温度：");((TextView)findViewById(R.id.tvNum4)).setText("25℃");
+				((TextView)findViewById(R.id.tvDataName1)).setText(String.format("X%s：", getString(R.string.axis)));((TextView)findViewById(R.id.tvNum1)).setText("0");
+				((TextView)findViewById(R.id.tvDataName2)).setText(String.format("Y%s：", getString(R.string.axis)));((TextView)findViewById(R.id.tvNum2)).setText("0");
+				((TextView)findViewById(R.id.tvDataName3)).setText(String.format("Z%s：", getString(R.string.axis)));((TextView)findViewById(R.id.tvNum3)).setText("0");
+				((TextView)findViewById(R.id.tvDataName4)).setText(String.format("%s：", getString(R.string.degrees)));((TextView)findViewById(R.id.tvNum4)).setText("25℃");
 				break;
 			case R.id.button2:
 				if (selected[2]==false) return;
 				iCurrentGroup=2;
-				((TextView)findViewById(R.id.tvDataName1)).setText("X轴：");((TextView)findViewById(R.id.tvNum1)).setText("0");
-				((TextView)findViewById(R.id.tvDataName2)).setText("Y轴：");((TextView)findViewById(R.id.tvNum2)).setText("0");
-				((TextView)findViewById(R.id.tvDataName3)).setText("Z轴：");((TextView)findViewById(R.id.tvNum3)).setText("0");
-				((TextView)findViewById(R.id.tvDataName4)).setText("温度：");((TextView)findViewById(R.id.tvNum4)).setText("25℃");
+				((TextView)findViewById(R.id.tvDataName1)).setText(String.format("X%s：", getString(R.string.axis)));((TextView)findViewById(R.id.tvNum1)).setText("0");
+				((TextView)findViewById(R.id.tvDataName2)).setText(String.format("Y%s：", getString(R.string.axis)));((TextView)findViewById(R.id.tvNum2)).setText("0");
+				((TextView)findViewById(R.id.tvDataName3)).setText(String.format("Z%s：", getString(R.string.axis)));((TextView)findViewById(R.id.tvNum3)).setText("0");
+				((TextView)findViewById(R.id.tvDataName4)).setText(String.format("%s：", getString(R.string.degrees)));((TextView)findViewById(R.id.tvNum4)).setText("25℃");
 				break;
 			case R.id.button3:
 				if (selected[3]==false) return;
 				iCurrentGroup=3;
-				((TextView)findViewById(R.id.tvDataName1)).setText("X轴：");((TextView)findViewById(R.id.tvNum1)).setText("0");
-				((TextView)findViewById(R.id.tvDataName2)).setText("Y轴：");((TextView)findViewById(R.id.tvNum2)).setText("0");
-				((TextView)findViewById(R.id.tvDataName3)).setText("Z轴：");((TextView)findViewById(R.id.tvNum3)).setText("0");
-				((TextView)findViewById(R.id.tvDataName4)).setText("温度：");((TextView)findViewById(R.id.tvNum4)).setText("25℃");
+				((TextView)findViewById(R.id.tvDataName1)).setText(String.format("X%s：", getString(R.string.axis)));((TextView)findViewById(R.id.tvNum1)).setText("0");
+				((TextView)findViewById(R.id.tvDataName2)).setText(String.format("Y%s：", getString(R.string.axis)));((TextView)findViewById(R.id.tvNum2)).setText("0");
+				((TextView)findViewById(R.id.tvDataName3)).setText(String.format("Z%s：", getString(R.string.axis)));((TextView)findViewById(R.id.tvNum3)).setText("0");
+				((TextView)findViewById(R.id.tvDataName4)).setText(String.format("%s：", getString(R.string.degrees)));((TextView)findViewById(R.id.tvNum4)).setText("25℃");
 				break;
 			case R.id.button4:
 				if (selected[4]==false) return;
 				iCurrentGroup=4;
-				((TextView)findViewById(R.id.tvDataName1)).setText("X轴：");((TextView)findViewById(R.id.tvNum1)).setText("0");
-				((TextView)findViewById(R.id.tvDataName2)).setText("Y轴：");((TextView)findViewById(R.id.tvNum2)).setText("0");
-				((TextView)findViewById(R.id.tvDataName3)).setText("Z轴：");((TextView)findViewById(R.id.tvNum3)).setText("0");
-				((TextView)findViewById(R.id.tvDataName4)).setText("温度：");((TextView)findViewById(R.id.tvNum4)).setText("25℃");
+				((TextView)findViewById(R.id.tvDataName1)).setText(String.format("X%s：", getString(R.string.axis)));((TextView)findViewById(R.id.tvNum1)).setText("0");
+				((TextView)findViewById(R.id.tvDataName2)).setText(String.format("Y%s：", getString(R.string.axis)));((TextView)findViewById(R.id.tvNum2)).setText("0");
+				((TextView)findViewById(R.id.tvDataName3)).setText(String.format("Z%s：", getString(R.string.axis)));((TextView)findViewById(R.id.tvNum3)).setText("0");
+				((TextView)findViewById(R.id.tvDataName4)).setText(String.format("%s：", getString(R.string.degrees)));((TextView)findViewById(R.id.tvNum4)).setText("25℃");
 				break;
 			case R.id.button5:
 				if (selected[5]==false) return;
@@ -369,24 +375,24 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 			case R.id.button6:
 				if (selected[6]==false) return;
 				iCurrentGroup=6;
-				((TextView)findViewById(R.id.tvDataName1)).setText("气压：");((TextView)findViewById(R.id.tvNum1)).setText("0");
-				((TextView)findViewById(R.id.tvDataName2)).setText("海拔：");((TextView)findViewById(R.id.tvNum2)).setText("0");
+				((TextView)findViewById(R.id.tvDataName1)).setText(String.format("%s：", getString(R.string.pressure)));((TextView)findViewById(R.id.tvNum1)).setText("0");
+				((TextView)findViewById(R.id.tvDataName2)).setText(String.format("%s：", getString(R.string.altitude)));((TextView)findViewById(R.id.tvNum2)).setText("0");
 				((TextView)findViewById(R.id.tvDataName3)).setText("");((TextView)findViewById(R.id.tvNum3)).setText("");
 				((TextView)findViewById(R.id.tvDataName4)).setText("");((TextView)findViewById(R.id.tvNum4)).setText("");
 				break;
 			case R.id.button7:
 				if (selected[7]==false) return;
 				iCurrentGroup=7;
-				((TextView)findViewById(R.id.tvDataName1)).setText("经度：");((TextView)findViewById(R.id.tvNum1)).setText("0");
-				((TextView)findViewById(R.id.tvDataName2)).setText("纬度：");((TextView)findViewById(R.id.tvNum2)).setText("0");
+				((TextView)findViewById(R.id.tvDataName1)).setText(String.format("%s：", getString(R.string.longitude)));((TextView)findViewById(R.id.tvNum1)).setText("0");
+				((TextView)findViewById(R.id.tvDataName2)).setText(String.format("%s：", getString(R.string.latitude))); ((TextView)findViewById(R.id.tvNum2)).setText("0");
 				((TextView)findViewById(R.id.tvDataName3)).setText("");((TextView)findViewById(R.id.tvNum3)).setText("");
 				((TextView)findViewById(R.id.tvDataName4)).setText("");((TextView)findViewById(R.id.tvNum4)).setText("");
 				break;
 			case R.id.button8:
 				if (selected[8]==false) return;
 				iCurrentGroup=8;
-				((TextView)findViewById(R.id.tvDataName1)).setText("地速：");((TextView)findViewById(R.id.tvNum1)).setText("0");
-				((TextView)findViewById(R.id.tvDataName2)).setText("航向：");((TextView)findViewById(R.id.tvNum2)).setText("0");
+				((TextView)findViewById(R.id.tvDataName1)).setText(String.format("%s：", getString(R.string.speed)));((TextView)findViewById(R.id.tvNum1)).setText("0");
+				((TextView)findViewById(R.id.tvDataName2)).setText(String.format("%s：", getString(R.string.course)));((TextView)findViewById(R.id.tvNum2)).setText("0");
 				((TextView)findViewById(R.id.tvDataName3)).setText("");((TextView)findViewById(R.id.tvNum3)).setText("");
 				((TextView)findViewById(R.id.tvDataName4)).setText("");((TextView)findViewById(R.id.tvNum4)).setText("");
 				break;
@@ -401,7 +407,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 			case R.id.buttonA:
 				if (selected[10]==false) return;
 				iCurrentGroup=10;
-				((TextView)findViewById(R.id.tvDataName1)).setText("卫星数：");((TextView)findViewById(R.id.tvNum1)).setText("0");
+				((TextView)findViewById(R.id.tvDataName1)).setText(String.format("%s：", getString(R.string.val16)));((TextView)findViewById(R.id.tvNum1)).setText("0");
 				((TextView)findViewById(R.id.tvDataName2)).setText("PDOP：");((TextView)findViewById(R.id.tvNum2)).setText("0");
 				((TextView)findViewById(R.id.tvDataName3)).setText("HDOP：");((TextView)findViewById(R.id.tvNum3)).setText("0");
 				((TextView)findViewById(R.id.tvDataName4)).setText("VDOP：");((TextView)findViewById(R.id.tvNum4)).setText("0");
@@ -426,19 +432,19 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 		{
 			this.recordStartorStop = true;
 			mBluetoothService.setRecord(true);
-			((Button)v).setText("停止");
+			((Button)v).setText(R.string.stop);
 			((Button)findViewById(R.id.BtnRecord)).setTextColor(Color.RED);
 		}
 		else{
 			this.recordStartorStop = false;
 			mBluetoothService.setRecord(false);
-			((Button)findViewById(R.id.BtnRecord)).setText("记录");
+			((Button)findViewById(R.id.BtnRecord)).setText(R.string.record);
 			((Button)v).setTextColor(Color.WHITE);
 			new AlertDialog.Builder(this)
-					.setTitle("提示")
+					.setTitle(R.string.prompt)
 					.setIcon(android.R.drawable.ic_dialog_alert)
-					.setMessage("数据已经记录至手机根目录：/mnt/sdcard/Record.txt\n是否打开已保存的文件？")
-					.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+					.setMessage(String.format("%s：/mnt/sdcard/Record.txt\n%s？", getString(R.string.msg3), getString(R.string.msg4)))
+					.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface arg0, int arg1) {
 							File myFile=new File("/mnt/sdcard/Record.txt");
@@ -447,7 +453,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 							startActivity(intent);
 						}
 					})
-					.setNegativeButton("取消", null)
+					.setNegativeButton(R.string.cancel, null)
 					.show();
 		}
 	}
