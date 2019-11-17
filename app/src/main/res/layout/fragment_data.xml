@@ -32,6 +32,7 @@
             android:id="@+id/textView" />
         <Button
             android:id="@+id/BtnOutput"
+            android:enabled="false"
             android:text="@string/output"
             android:textColor="#fff"
             android:layout_width="wrap_content"
@@ -40,6 +41,18 @@
             android:layout_centerVertical="true"
             android:background="@drawable/title_btn_right"
             android:onClick="OnClickConfig"
+            />
+        <Button
+            android:id="@+id/BtnRate"
+            android:enabled="false"
+            android:text="@string/rate"
+            android:textColor="#fff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/BtnOutput"
+            android:layout_centerVertical="true"
+            android:background="@drawable/title_btn_right"
+            android:onClick="OnClickRate"
             />
     </RelativeLayout>
     <RelativeLayout

@@ -1,8 +1,5 @@
 package com.example;
 
-import java.io.File;
-
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -11,15 +8,12 @@ import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.view.View;
 import android.view.Window;
@@ -52,7 +46,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 	private short sOffsetAccX,sOffsetAccY,sOffsetAccZ;
 
 	boolean[] selected;
-	String[] SelectItem;
+	String[] SelectItemFields;
 
 	private final Handler mHandler = new Handler() {
 		// 匿名内部类写法，实现接口Handler的一些方法
@@ -64,7 +58,9 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 				case BluetoothService.STATE_CONNECTED:
 					mTitle.setText(R.string.title_connected_to);
                     ((Button) findViewById(R.id.BtnRecord)).setEnabled(true);
-					mTitle.append(mConnectedDeviceName);
+                    ((Button) findViewById(R.id.BtnRate)).setEnabled(true);
+                    ((Button) findViewById(R.id.BtnOutput)).setEnabled(true);
+                    mTitle.append(mConnectedDeviceName);
 					break;
 				case BluetoothService.STATE_CONNECTING:
 					mTitle.setText(R.string.title_connecting);
@@ -72,6 +68,8 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 				case BluetoothService.STATE_LISTEN:
 				case BluetoothService.STATE_NONE:
                     ((Button) findViewById(R.id.BtnRecord)).setEnabled(false);
+                    ((Button) findViewById(R.id.BtnRate)).setEnabled(false);
+                    ((Button) findViewById(R.id.BtnOutput)).setEnabled(false);
                     mTitle.setText(R.string.title_not_connected);
 					break;
 				}
@@ -160,6 +158,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 	};
 
 	private static final int REQUEST_CONNECT_DEVICE = 1;
+    private int mSampleRate;
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -172,7 +171,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 		SelectFragment(0);
 
 		selected = new boolean[]{false,true,true,true,false,false,false,false,false,false,false};
-		SelectItem = new String[]{getString(R.string.time),getString(R.string.acc),getString(R.string.angv),getString(R.string.ang),
+		SelectItemFields = new String[]{getString(R.string.time),getString(R.string.acc),getString(R.string.angv),getString(R.string.ang),
 				getString(R.string.magn),getString(R.string.port), getString(R.string.pressure), getString(R.string.long_lat), getString(R.string.speed), getString(R.string.quaternion), getString(R.string.val16)};
 
 		try {
@@ -217,7 +216,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 	public void onStart() {
 		super.onStart();
 		try{
-			GetSelected();
+			GetSelectedFields();
 		}
 		catch (Exception err){}
 
@@ -278,7 +277,8 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 		if (selected[9]) ((TextView)findViewById(R.id.button9)).setTextColor(Color.BLACK); else ((TextView)findViewById(R.id.button9)).setTextColor(Color.GRAY);
 		if (selected[10]) ((TextView)findViewById(R.id.buttonA)).setTextColor(Color.BLACK); else ((TextView)findViewById(R.id.buttonA)).setTextColor(Color.GRAY);
 	}
-	public void GetSelected(){
+
+	public void GetSelectedFields(){
 		SharedPreferences mySharedPreferences= getSharedPreferences("Output", Activity.MODE_PRIVATE);
 		try{
 			int iOut = Integer.parseInt(mySharedPreferences.getString("Out", "15"));
@@ -290,13 +290,13 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 		catch (Exception err){}
 	}
 
-	public void OnClickConfig(View v) {
+    public void OnClickConfig(View v) {
 
-		GetSelected();
+		GetSelectedFields();
 		new AlertDialog.Builder(this)
 				.setTitle(R.string.msg2)
 				.setIcon(android.R.drawable.ic_dialog_alert)
-				.setMultiChoiceItems(SelectItem, selected, new DialogInterface.OnMultiChoiceClickListener() {
+				.setMultiChoiceItems(SelectItemFields, selected, new DialogInterface.OnMultiChoiceClickListener() {
 					@Override
 					public void onClick(DialogInterface dialogInterface, int i, boolean b) {
 						selected[i] = b;
@@ -328,7 +328,43 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 
 	}
 
-	int RunMode = 0;
+    public void OnClickRate(View v) {
+
+	    final String[] options = new String[] {"0.1Hz", "0.5Hz", "1Hz", "2Hz", "5Hz", "10Hz", "20Hz", "50Hz", "100Hz", "200Hz", "Single", "No output"};
+        SharedPreferences mySharedPreferences= getSharedPreferences("Output", Activity.MODE_PRIVATE);
+        mSampleRate = Integer.parseInt(mySharedPreferences.getString("Rate", "5"));
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.sampling_rate)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setSingleChoiceItems(options, mSampleRate, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        mSampleRate = i;
+                    }
+                })
+                .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        byte[] buffer = new byte[5];
+                        buffer[0] = (byte) 0xff;
+                        buffer[1] = (byte) 0xaa;
+                        buffer[2] = (byte) 0x03;
+                        buffer[3] = (byte) (mSampleRate + 1);
+                        buffer[4] = (byte) 0x00;
+                        SharedPreferences mySharedPreferences= getSharedPreferences("Output",Activity.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = mySharedPreferences.edit();
+                        editor.putString("Rate", Integer.toString(mSampleRate));
+                        editor.commit();
+                        mBluetoothService.Send(buffer);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+
+    int RunMode = 0;
 
 	int iCurrentGroup=3;
 	public void ControlClick(View v) {

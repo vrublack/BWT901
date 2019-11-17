@@ -334,7 +334,7 @@ public class BluetoothService {
 					
 
 					while (queueBuffer.size() >= 11) {						
-						if ((queueBuffer.poll()) != 0x55) continue;// peek()返回对首但不删除 poll 移除并返回
+						if (queueBuffer.poll() != 0x55) continue;// peek()返回对首但不删除 poll 移除并返回
 							sHead = queueBuffer.poll();
 							for (int j = 0; j < 9; j++) packBuffer[j] = queueBuffer.poll();
 							switch (sHead) {//

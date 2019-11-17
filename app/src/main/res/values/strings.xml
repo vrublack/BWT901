@@ -56,4 +56,6 @@
     <string name="zaxis">Z axis：</string>
     <string name="temperature_">Temperature：</string>
     <string name="connect_failed">Failed to connect</string>
+    <string name="rate">Rate</string>
+    <string name="sampling_rate">Sampling rate</string>
 </resources>
