@@ -341,7 +341,7 @@ public class BluetoothService {
 								case 0x50:
 									int ms = ((((short) packBuffer[7]) << 8) | ((short) packBuffer[6] & 0xff));
 									strDate = String.format("20%02d-%02d-%02d",packBuffer[0],packBuffer[1],packBuffer[2]);
-									strTime = String.format("\t%02d:%02d:%02d.%03d",packBuffer[3],packBuffer[4],packBuffer[5],ms);
+									strTime = String.format("\t%02d:%02d:%02d.%03d\t",packBuffer[3],packBuffer[4],packBuffer[5],ms);
 									RecordData(sHead,strDate+strTime);
 									break;
 								case 0x51:
