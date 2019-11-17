@@ -13,6 +13,16 @@
         android:allowBackup="true"
         android:icon="@drawable/jy901"
         android:label="MiniIMU" >
+        <provider
+            android:name=".GenericFileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
+
         <activity
             android:name=".DataMonitor"
             android:configChanges="orientation|keyboardHidden"

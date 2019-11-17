@@ -473,7 +473,7 @@ public class BluetoothService {
 			SaveState = -1;
 			break;
 		case 1:
-			myFile=new MyFile("Record.txt", mContext);
+			myFile = new MyFile(new File(mContext.getExternalFilesDir(null), "Record.txt"));
 			DateFormat formatter = SimpleDateFormat.getDateTimeInstance();
 			Date curDate = new Date(System.currentTimeMillis());
 			String s=mContext.getString(R.string.start_time)+formatter.format(curDate)+"\r\n" ;
@@ -508,9 +508,10 @@ public class BluetoothService {
 }
 class MyFile{
 	FileOutputStream fout;
-	public MyFile(String fileName, Context context) throws FileNotFoundException{
-	    File path = new File(context.getExternalFilesDir(null), fileName);
-		fout = new FileOutputStream(path ,false);
+	File path;
+	public MyFile(File file) throws FileNotFoundException{
+	    this.path = file;
+		fout = new FileOutputStream(file ,false);
 	}
 	public void Write( String str) throws IOException {		
 			byte[] bytes = str.getBytes();

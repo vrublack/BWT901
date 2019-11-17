@@ -20,6 +20,7 @@ import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
@@ -62,6 +63,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 				switch (msg.arg1) {
 				case BluetoothService.STATE_CONNECTED:
 					mTitle.setText(R.string.title_connected_to);
+                    ((Button) findViewById(R.id.BtnRecord)).setEnabled(true);
 					mTitle.append(mConnectedDeviceName);
 					break;
 				case BluetoothService.STATE_CONNECTING:
@@ -69,7 +71,8 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 					break;
 				case BluetoothService.STATE_LISTEN:
 				case BluetoothService.STATE_NONE:
-					mTitle.setText(R.string.title_not_connected);
+                    ((Button) findViewById(R.id.BtnRecord)).setEnabled(false);
+                    mTitle.setText(R.string.title_not_connected);
 					break;
 				}
 				break;
@@ -449,13 +452,14 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 			new AlertDialog.Builder(this)
 					.setTitle(R.string.prompt)
 					.setIcon(android.R.drawable.ic_dialog_alert)
-					.setMessage(String.format("%s：/mnt/sdcard/Record.txt\n%s？", getString(R.string.msg3), getString(R.string.msg4)))
+					.setMessage(String.format("%s：%s\n%s？", getString(R.string.msg3), mBluetoothService.myFile.path.toString(), getString(R.string.msg4)))
 					.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface arg0, int arg1) {
-							File myFile=new File("/mnt/sdcard/Record.txt");
+							Uri uri = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".fileprovider", mBluetoothService.myFile.path);
 							Intent intent = new Intent(Intent.ACTION_VIEW);
-							intent.setData(Uri.fromFile(myFile));
+							intent.setData(uri);
+							intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 							startActivity(intent);
 						}
 					})
