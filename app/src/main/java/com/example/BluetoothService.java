@@ -341,7 +341,7 @@ public class BluetoothService {
 								case 0x50:
 									int ms = ((((short) packBuffer[7]) << 8) | ((short) packBuffer[6] & 0xff));
 									strDate = String.format("20%02d-%02d-%02d",packBuffer[0],packBuffer[1],packBuffer[2]);
-									strTime = String.format(" %02d:%02d:%02d.%03d",packBuffer[3],packBuffer[4],packBuffer[5],ms);
+									strTime = String.format("\t%02d:%02d:%02d.%03d",packBuffer[3],packBuffer[4],packBuffer[5],ms);
 									RecordData(sHead,strDate+strTime);
 									break;
 								case 0x51:
@@ -349,68 +349,68 @@ public class BluetoothService {
 									fData[1] = ((((short) packBuffer[3]) << 8) | ((short) packBuffer[2] & 0xff)) / 32768.0f * 16;
 									fData[2] = ((((short) packBuffer[5]) << 8) | ((short) packBuffer[4] & 0xff)) / 32768.0f * 16;
 									fData[17] = ((((short) packBuffer[7]) << 8) | ((short) packBuffer[6] & 0xff)) / 100.0f;
-									RecordData(sHead,String.format("% 10.2f", fData[0])+String.format("% 10.2f", fData[1])+String.format("% 10.2f", fData[2])+" ");
+									RecordData(sHead,String.format("%.4f\t", fData[0])+String.format("%.4f\t", fData[1])+String.format("%.4f\t", fData[2]));
 									break;
 								case 0x52:
 									fData[3] = ((((short) packBuffer[1]) << 8) | ((short) packBuffer[0] & 0xff)) / 32768.0f * 2000;
 									fData[4] = ((((short) packBuffer[3]) << 8) | ((short) packBuffer[2] & 0xff)) / 32768.0f * 2000;
 									fData[5] = ((((short) packBuffer[5]) << 8) | ((short) packBuffer[4] & 0xff)) / 32768.0f * 2000;
 									fData[17] = ((((short) packBuffer[7]) << 8) | ((short) packBuffer[6] & 0xff)) / 100.0f;
-									RecordData(sHead,String.format("% 10.2f", fData[3])+String.format("% 10.2f", fData[4])+String.format("% 10.2f", fData[5])+" ");
+									RecordData(sHead,String.format("%.4f\t", fData[3])+String.format("%.4f\t", fData[4])+String.format("%.4f\t", fData[5]));
 									break;
 								case 0x53:
 									fData[6] = ((((short) packBuffer[1]) << 8) | ((short) packBuffer[0] & 0xff)) / 32768.0f * 180;
 									fData[7] = ((((short) packBuffer[3]) << 8) | ((short) packBuffer[2] & 0xff)) / 32768.0f * 180;
 									fData[8] = ((((short) packBuffer[5]) << 8) | ((short) packBuffer[4] & 0xff)) / 32768.0f * 180;
 									fData[17] = ((((short) packBuffer[7]) << 8) | ((short) packBuffer[6] & 0xff)) / 100.0f;
-									RecordData(sHead,String.format("% 10.2f", fData[6])+String.format("% 10.2f", fData[7])+String.format("% 10.2f", fData[8]));
+									RecordData(sHead,String.format("%.4f\t", fData[6])+String.format("%.4f\t", fData[7])+String.format("%.4f\t", fData[8]));
 									break;
 								case 0x54://磁场
 									fData[9] = ((((short) packBuffer[1]) << 8) | ((short) packBuffer[0] & 0xff));
 									fData[10] = ((((short) packBuffer[3]) << 8) | ((short) packBuffer[2] & 0xff));
 									fData[11] = ((((short) packBuffer[5]) << 8) | ((short) packBuffer[4] & 0xff));
 									fData[17] = ((((short) packBuffer[7]) << 8) | ((short) packBuffer[6] & 0xff)) / 100.0f;
-									RecordData(sHead,String.format("% 10.2f", fData[9])+String.format("% 10.2f", fData[10])+String.format("% 10.2f", fData[11]));
+									RecordData(sHead,String.format("%.4f\t", fData[9])+String.format("%.4f\t", fData[10])+String.format("%.4f\t", fData[11]));
 									break;
 								case 0x55://端口
 									fData[12] = ((((short) packBuffer[1]) << 8) | ((short) packBuffer[0] & 0xff));
 									fData[13] = ((((short) packBuffer[3]) << 8) | ((short) packBuffer[2] & 0xff));
 									fData[14] = ((((short) packBuffer[5]) << 8) | ((short) packBuffer[4] & 0xff));
 									fData[15] = ((((short) packBuffer[7]) << 8) | ((short) packBuffer[6] & 0xff));
-									RecordData(sHead,String.format("% 7.0f", fData[12])+String.format("% 7.0f", fData[13])+String.format("% 7.0f", fData[14])+String.format("% 7.0f", fData[15]));
+									RecordData(sHead,String.format("%.4f\t", fData[12])+String.format("%.4f\t", fData[13])+String.format("%.4f\t", fData[14])+String.format("%.4f\t", fData[15]));
 									break;
 								case 0x56://气压、高度
 									fData[16] = ((((long) packBuffer[3]) << 24) |(((long) packBuffer[2]) << 16) |(((long) packBuffer[1]) << 8) | (((long) packBuffer[0])));
 									fData[17] = ((((long) packBuffer[7]) << 24) |(((long) packBuffer[6]) << 16) |(((long) packBuffer[5]) << 8) | (((long) packBuffer[4])));
 									fData[17]/=100;
-									RecordData(sHead,String.format("% 10.2f", fData[16])+String.format("% 10.2f", fData[17]));;
+									RecordData(sHead,String.format("%.4f\t", fData[16])+String.format("%.4f\t", fData[17]));;
 									break;
 								case 0x57://经纬度
 									long Longitude = ((((long) packBuffer[3]) << 24) |(((long) packBuffer[2]) << 16) |(((long) packBuffer[1]) << 8) | (((long) packBuffer[0])));
 									fData[18]=(float) ((float)Longitude / 10000000 + ((float)(Longitude % 10000000) / 100000.0 / 60.0));
 									long Latitude = ((((long) packBuffer[7]) << 24) |(((long) packBuffer[6]) << 16) |(((long) packBuffer[5]) << 8) | (((long) packBuffer[4])));
 									fData[19]=(float) ((float)Latitude / 10000000 + ((float)(Latitude % 10000000) / 100000.0 / 60.0));
-									RecordData(sHead,String.format("% 14.6f", fData[18])+String.format("% 14.6f", fData[19]));;
+									RecordData(sHead,String.format("%.4f\t", fData[18])+String.format("%.4f\t", fData[19]));;
 									break;
 								case 0x58://海拔、航向、地速
 									fData[20] = ((((long) packBuffer[3]) << 24) |(((long) packBuffer[2]) << 16) |(((long) packBuffer[1]) << 8) | (((long) packBuffer[0])))/10;
 									fData[21]=((((short) packBuffer[5]) << 8) | ((short) packBuffer[4] & 0xff))/10;
 									fData[22]=((((short) packBuffer[7]) << 8) | ((short) packBuffer[6] & 0xff))/1000;
-									RecordData(sHead,String.format("% 10.2f", fData[20])+String.format("% 10.2f", fData[21])+String.format("% 10.2f", fData[22]));;
+									RecordData(sHead,String.format("%.4f\t", fData[20])+String.format("%.4f\t", fData[21])+String.format("%.4f\t", fData[22]));;
 									break;
 								case 0x59://四元数
 									fData[23] = ((((short) packBuffer[1]) << 8) | ((short) packBuffer[0] & 0xff)) / 32768.0f;
 									fData[24] = ((((short) packBuffer[3]) << 8) | ((short) packBuffer[2] & 0xff))/32768.0f;
 									fData[25] = ((((short) packBuffer[5]) << 8) | ((short) packBuffer[4] & 0xff))/32768.0f;
 									fData[26] = ((((short) packBuffer[7]) << 8) | ((short) packBuffer[6] & 0xff))/32768.0f;
-									RecordData(sHead,String.format("% 7.3f", fData[23])+String.format("% 7.3f", fData[24])+String.format("% 7.3f", fData[25])+String.format("% 7.3f", fData[26]));
+									RecordData(sHead,String.format("%.4f\t", fData[23])+String.format("%.4f\t", fData[24])+String.format("%.4f\t", fData[25])+String.format("%.4f\t", fData[26]));
 									break;
 								case 0x5a://卫星数
 									fData[27] = ((((short) packBuffer[1]) << 8) | ((short) packBuffer[0] & 0xff)) / 32768.0f;
 									fData[28] = ((((short) packBuffer[3]) << 8) | ((short) packBuffer[2] & 0xff))/32768.0f;
 									fData[29] = ((((short) packBuffer[5]) << 8) | ((short) packBuffer[4] & 0xff))/32768.0f;
 									fData[30] = ((((short) packBuffer[7]) << 8) | ((short) packBuffer[6] & 0xff))/32768.0f;
-									RecordData(sHead,String.format("% 5.0f", fData[27])+String.format("% 7.1f", fData[28])+String.format("% 7.1f", fData[29])+String.format("% 7.1f", fData[30]));
+									RecordData(sHead,String.format("%.4f\t", fData[27])+String.format("%.4f\t", fData[28])+String.format("%.4f\t", fData[29])+String.format("%.4f\t", fData[30]));
 									break;
 							}//switch
 					}//while (queueBuffer.size() >= 11)
@@ -476,17 +476,17 @@ public class BluetoothService {
 			myFile = new MyFile(new File(mContext.getExternalFilesDir(null), "Record.txt"));
 			DateFormat formatter = SimpleDateFormat.getDateTimeInstance();
 			Date curDate = new Date(System.currentTimeMillis());
-			String s=mContext.getString(R.string.start_time)+formatter.format(curDate)+"\r\n" ;
-			if ((IDSave&0x02)>0) s+= String.format("  %sX： %<sY： %<sZ：", mContext.getString(R.string.acc));
-			if ((IDSave&0x04)>0) s+= String.format("  %sX： %<sY： %<sZ：", mContext.getString(R.string.angv));
-			if ((IDSave&0x08)>0) s+= String.format("    %sX：   %<sY：   %<sZ：", mContext.getString(R.string.ang));
-			if ((IDSave&0x10)>0) s+= String.format("   %sX：   $<sY：   %<sZ：", mContext.getString(R.string.magn));
-			if ((IDSave&0x20)>0) s+= String.format("%s0：%<s1：%<s2：%<s3：", mContext.getString(R.string.port));
-			if ((IDSave&0x40)>0) s+= String.format("    %s：    %s：", mContext.getString(R.string.pressure), mContext.getString(R.string.height));
-			if ((IDSave&0x80)>0) s+= String.format("        %s：        %s：", mContext.getString(R.string.longitude), mContext.getString(R.string.latitude));
-			if ((IDSave&0x100)>0) s+= String.format("    %s：    %s：    %s：", mContext.getString(R.string.altitude), mContext.getString(R.string.course), mContext.getString(R.string.speed));
-			if ((IDSave&0x200)>0) s+="   q0：   q1：   q2：   q3：";
-			if ((IDSave&0x400)>0) s+= String.format("%s：PDOP： HDOP： VDOP：", mContext.getString(R.string.satellites));
+			String s=mContext.getString(R.string.start_time)+formatter.format(curDate)+"\n" ;
+			if ((IDSave&0x02)>0) s+= String.format("%sX\t%<sY\t%<sZ\t", mContext.getString(R.string.acc));
+			if ((IDSave&0x04)>0) s+= String.format("%sX\t%<sY\t%<sZ\t", mContext.getString(R.string.angv));
+			if ((IDSave&0x08)>0) s+= String.format("%sX\t%<sY\t%<sZ\t", mContext.getString(R.string.ang));
+			if ((IDSave&0x10)>0) s+= String.format("%sX\t$<sY\t%<sZ\t", mContext.getString(R.string.magn));
+			if ((IDSave&0x20)>0) s+= String.format("%s0\t%<s1\t%<s2\t%<s3\t", mContext.getString(R.string.port));
+			if ((IDSave&0x40)>0) s+= String.format("%s\t%s\t", mContext.getString(R.string.pressure), mContext.getString(R.string.height));
+			if ((IDSave&0x80)>0) s+= String.format("%s\t%s\t", mContext.getString(R.string.longitude), mContext.getString(R.string.latitude));
+			if ((IDSave&0x100)>0) s+= String.format("%s\t%s\t%s\t", mContext.getString(R.string.altitude), mContext.getString(R.string.course), mContext.getString(R.string.speed));
+			if ((IDSave&0x200)>0) s+="q0\tq1\tq2\tq3\t";
+			if ((IDSave&0x400)>0) s+= String.format("%s\tPDOP\tHDOP\tVDOP\t", mContext.getString(R.string.satellites));
 			myFile.Write(s+"\r\n");
 			if (Repeat)  {myFile.Write(str);SaveState = 2;}
 			break;
