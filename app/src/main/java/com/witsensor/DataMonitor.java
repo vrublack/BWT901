@@ -5,13 +5,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.FileProvider;
@@ -27,12 +32,8 @@ import android.widget.Toast;
 public class DataMonitor extends FragmentActivity implements OnClickListener {
 
     boolean slideAction = false;
-	private BluetoothAdapter mBluetoothAdapter = null;
-	private BluetoothReader mBluetoothReader = null;
-	private String mConnectedDeviceName = null;
 
 	private TextView mTitle;
-	private boolean recordStartorStop=false;
 
 	private DataFragment dataFragment;
 
@@ -48,7 +49,49 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 	boolean[] selected;
 	String[] SelectItemFields;
 
-	private final Handler mHandler = new Handler() {
+    private SensorService mService;
+    private boolean mBound;
+    private ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            SensorService.SensorBinder binder = (SensorService.SensorBinder) service;
+            mService = binder.getService();
+            mService.setUiHandler(mHandler);
+            mBound = true;
+
+            // update UI now
+            if (mService.isRecording()) {
+                ((Button) findViewById(R.id.BtnRecord)).setText(R.string.stop);
+                ((Button) findViewById(R.id.BtnRecord)).setTextColor(Color.RED);
+            }
+
+            if (mService.isConnected()) {
+                ((Button) findViewById(R.id.BtnRecord)).setEnabled(true);
+                ((Button) findViewById(R.id.BtnRate)).setEnabled(true);
+                ((Button) findViewById(R.id.BtnOutput)).setEnabled(true);
+                mTitle.setText(getString(R.string.title_connected_to) + mService.getConnectedDeviceName());
+            } else {
+                mTitle.setText(R.string.title_not_connected);
+
+                // TODO remember device and don't prompt every time
+                try {
+                    Intent serverIntent = new Intent(DataMonitor.this, DeviceListActivity.class);
+                    startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+                } catch (Exception err) {
+                }
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
+
+    private final Handler mHandler = new Handler() {
 		// 匿名内部类写法，实现接口Handler的一些方法
 		@Override
 		public void handleMessage(Message msg) {
@@ -56,11 +99,10 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 			case MESSAGE_STATE_CHANGE:
 				switch (msg.arg1) {
 				case BluetoothReader.STATE_CONNECTED:
-					mTitle.setText(R.string.title_connected_to);
                     ((Button) findViewById(R.id.BtnRecord)).setEnabled(true);
                     ((Button) findViewById(R.id.BtnRate)).setEnabled(true);
                     ((Button) findViewById(R.id.BtnOutput)).setEnabled(true);
-                    mTitle.append(mConnectedDeviceName);
+                    mTitle.setText(getString(R.string.title_connected_to) + mService.getConnectedDeviceName());
 					break;
 				case BluetoothReader.STATE_CONNECTING:
 					mTitle.setText(R.string.title_connecting);
@@ -147,8 +189,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 				}
 				break;
 			case MESSAGE_DEVICE_NAME:
-				mConnectedDeviceName = msg.getData().getString("device_name");
-				Toast.makeText(getApplicationContext(),"Connected to " + mConnectedDeviceName,Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(),"Connected to " + msg.getData().getString("device_name"), Toast.LENGTH_SHORT).show();
 				break;
 			case MESSAGE_TOAST:
 				Toast.makeText(getApplicationContext(),msg.getData().getString("toast"), Toast.LENGTH_SHORT).show();
@@ -174,28 +215,10 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 		SelectItemFields = new String[]{getString(R.string.time),getString(R.string.acc),getString(R.string.angv),getString(R.string.ang),
 				getString(R.string.magn),getString(R.string.port), getString(R.string.pressure), getString(R.string.long_lat), getString(R.string.speed), getString(R.string.quaternion), getString(R.string.val16)};
 
-		try {
-			mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-			if (mBluetoothAdapter == null) {
-				Toast.makeText(this, getString(R.string.msg1), Toast.LENGTH_LONG).show();
-				//finish();
-				return;
-			}
-
-			if (!mBluetoothAdapter.isEnabled()) mBluetoothAdapter.enable();
-			if (mBluetoothReader == null)
-				mBluetoothReader = new BluetoothReader(this, mHandler); // 用来管理蓝牙的连接
-			Intent serverIntent = new Intent(this, DeviceListActivity.class);
-			startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
-		}
-		catch (Exception err){}
     }
 
 	public void onClickedBTSet(View v){
 		try {
-			if (!mBluetoothAdapter.isEnabled()) mBluetoothAdapter.enable();
-			if (mBluetoothReader == null)
-				mBluetoothReader = new BluetoothReader(this, mHandler); // 用来管理蓝牙的连接
 			Intent serverIntent = new Intent(this, DeviceListActivity.class);
 			startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
 		}
@@ -203,7 +226,6 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 	}
 	@SuppressLint("NewApi")
 	private void SelectFragment(int Index) {
-		// TODO Auto-generated method stub
 		android.support.v4.app.FragmentManager manager = getSupportFragmentManager();
 		android.support.v4.app.FragmentTransaction transaction = manager.beginTransaction();
 
@@ -220,17 +242,23 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 		}
 		catch (Exception err){}
 
-	}
+		if (!SensorService.isRunning) {
+            Intent serviceIntent = new Intent(this, SensorService.class);
+            if (Build.VERSION.SDK_INT >= 26) {
+                startForegroundService(serviceIntent);
+            } else {
+                startService(serviceIntent);
+            }
+        }
+
+        // maybe the service was running in the background but the activity was destroyed
+        bindService(new Intent(this, SensorService.class), connection, Context.BIND_AUTO_CREATE);
+
+    }
 
 	public synchronized void onResume() {
 		super.onResume();
-
-		if (mBluetoothReader != null) {
-			if (mBluetoothReader.getState() == BluetoothReader.STATE_NONE) {
-				mBluetoothReader.start();
-			}
-		}
-	}
+    }
 
 	@Override
 	public synchronized void onPause() {
@@ -242,23 +270,25 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 	public void onStop() {
 		super.onStop();
 
+		if (mService != null) {
+            if (mService.isRecording()) {
+		        mService.setUiHandler(null);
+            } else {
+                // shut service down if not recording because we don't need it
+                stopService(new Intent(this, SensorService.class));
+            }
+        }
 	}
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		if (mBluetoothReader != null) mBluetoothReader.stop();
-	}
 	public BluetoothDevice device;
 	// 利用startActivityForResult 和 onActivityResult在activity间传递数据
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
 		switch (requestCode) {
 		case REQUEST_CONNECT_DEVICE:// When DeviceListActivity returns with a device to connect
 			if (resultCode == Activity.RESULT_OK) {
 				String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);// Get the device MAC address
-				device = mBluetoothAdapter.getRemoteDevice(address);// Get the BLuetoothDevice object
-				mBluetoothReader.connect(device);// Attempt to connect to the device
+				device = mService.getBluetoothAdapter().getRemoteDevice(address);// Get the BLuetoothDevice object
+				mService.getBluetoothReader().connect(device);// Attempt to connect to the device
 			}
 			break;
 		}
@@ -320,7 +350,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 						editor.putString("Out",String.format("%d",sOut));
 						editor.commit();
 						RefreshButtonStatus();
-						mBluetoothReader.Send(buffer);
+                        mService.getBluetoothReader().Send(buffer);
 					}
 				})
 				.setNegativeButton(R.string.cancel, null)
@@ -356,7 +386,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
                         SharedPreferences.Editor editor = mySharedPreferences.edit();
                         editor.putString("Rate", Integer.toString(mSampleRate));
                         editor.commit();
-                        mBluetoothReader.Send(buffer);
+                        mService.getBluetoothReader().Send(buffer);
                     }
                 })
                 .setNegativeButton(R.string.cancel, null)
@@ -472,37 +502,45 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 		((Button) findViewById(R.id.buttonB)).setBackgroundResource(R.drawable.ic_preference_single_normal);
 		((Button) v).setBackgroundResource(R.drawable.ic_preference_single_pressed);
 	}
+
 	public void onRecordBtnClick(View v) {
-		if (!this.recordStartorStop)
-		{
-            this.recordStartorStop = true;
-            mBluetoothReader.setRecord(true);
+		if (!this.mService.isRecording()) {
             ((Button) findViewById(R.id.BtnRecord)).setText(R.string.stop);
             ((Button) findViewById(R.id.BtnRecord)).setTextColor(Color.RED);
+            startRecording();
 		}
 		else{
-			this.recordStartorStop = false;
-			mBluetoothReader.setRecord(false);
-			((Button)findViewById(R.id.BtnRecord)).setText(R.string.record);
-			((Button)v).setTextColor(Color.WHITE);
-			new AlertDialog.Builder(this)
-					.setTitle(R.string.prompt)
-					.setIcon(android.R.drawable.ic_dialog_alert)
-					.setMessage(String.format("%s：%s\n%s？", getString(R.string.msg3), mBluetoothReader.myFile.path.toString(), getString(R.string.msg4)))
-					.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface arg0, int arg1) {
-							Uri uri = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".fileprovider", mBluetoothReader.myFile.path);
-							Intent intent = new Intent(Intent.ACTION_VIEW);
-							intent.setData(uri);
-							intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-							startActivity(intent);
-						}
-					})
-					.setNegativeButton(R.string.cancel, null)
-					.show();
-		}
+            ((Button)findViewById(R.id.BtnRecord)).setText(R.string.record);
+            ((Button)v).setTextColor(Color.WHITE);
+            stopRecording();
+        }
 	}
+
+	public void startRecording() {
+        mService.startRecording();
+    }
+
+    public void stopRecording() {
+	    mService.stopRecording();
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.prompt)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setMessage(String.format("%s：%s\n%s？", getString(R.string.msg3), mService.getBluetoothReader().myFile.path.toString(), getString(R.string.msg4)))
+                .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        Uri uri = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".fileprovider",
+                                mService.getBluetoothReader().myFile.path);
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setData(uri);
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        startActivity(intent);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
 
     @Override
 	public void onClick(View v) {
