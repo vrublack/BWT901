@@ -26,7 +26,7 @@ import java.util.Queue;
 
 //import org.apache.http.util.EncodingUtils;
 
-public class BluetoothService {
+public class BluetoothReader {
 
 	private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	private static final String NAME = "BluetoothData";
@@ -49,7 +49,7 @@ public class BluetoothService {
 
 	private byte[] packBuffer = new byte[11];
 
-	public BluetoothService(Context context, Handler handler) {
+	public BluetoothReader(Context context, Handler handler) {
 		mAdapter = BluetoothAdapter.getDefaultAdapter();
 		mState = STATE_NONE;
 		mHandler = handler;
@@ -195,7 +195,7 @@ public class BluetoothService {
 
 				// If a connection was accepted
 				if (socket != null) {
-					synchronized (BluetoothService.this) {
+					synchronized (BluetoothReader.this) {
 						switch (mState) {
 						case STATE_LISTEN:
 						case STATE_CONNECTING:// Situation normal. Start the connected thread.							
@@ -268,11 +268,11 @@ public class BluetoothService {
                     e.printStackTrace();
                 }
 				
-				BluetoothService.this.start();// 引用来说明要调用的是外部类的方法 run
+				BluetoothReader.this.start();// 引用来说明要调用的是外部类的方法 run
 				return;
 			}
 			
-			synchronized (BluetoothService.this) {// Reset the ConnectThread because we're done
+			synchronized (BluetoothReader.this) {// Reset the ConnectThread because we're done
 				mConnectThread = null;
 			}			
 			connected(mmSocket, mmDevice);// Start the connected thread
