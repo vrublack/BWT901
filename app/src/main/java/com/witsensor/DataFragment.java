@@ -1,4 +1,4 @@
-package com.example;
+package com.witsensor;
 
 
 import android.support.v4.app.Fragment;

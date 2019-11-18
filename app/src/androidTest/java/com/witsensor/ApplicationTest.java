@@ -1,4 +1,4 @@
-package com.example;
+package com.witsensor;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

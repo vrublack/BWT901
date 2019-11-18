@@ -1,4 +1,4 @@
-package com.example;
+package com.witsensor;
 
 import org.junit.Test;
 

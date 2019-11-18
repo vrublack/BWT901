@@ -1,8 +1,6 @@
-package com.example;
+package com.witsensor;
 
 import java.util.Set;
-
-import com.example.R;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;

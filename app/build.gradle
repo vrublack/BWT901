@@ -5,7 +5,7 @@ android {
     buildToolsVersion "29.0.2"
 
     defaultConfig {
-        applicationId "com.example"
+        applicationId "com.witsensor"
         minSdkVersion 15
         targetSdkVersion 29
         versionCode 1

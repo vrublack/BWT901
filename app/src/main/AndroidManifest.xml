@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example" >
+    package="com.witsensor" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -14,7 +14,7 @@
         android:icon="@drawable/jy901"
         android:label="MiniIMU" >
         <provider
-            android:name=".GenericFileProvider"
+            android:name="com.witsensor.GenericFileProvider"
             android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -24,7 +24,7 @@
         </provider>
 
         <activity
-            android:name=".DataMonitor"
+            android:name="com.witsensor.DataMonitor"
             android:configChanges="orientation|keyboardHidden"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -36,7 +36,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DeviceListActivity"
+            android:name="com.witsensor.DeviceListActivity"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/select_device"
             android:theme="@android:style/Theme.Dialog" />
