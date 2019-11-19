@@ -151,7 +151,7 @@ public class SensorService extends Service {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(getString(R.string.shop_name))
                 .setContentText(msg)
-                .setSmallIcon(R.drawable.jy901)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentIntent(pendingIntent).build();
     }
 
