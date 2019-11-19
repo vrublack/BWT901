@@ -328,7 +328,7 @@ public class BluetoothReader {
 					// 每次对inputBuffer做覆盖处理
 					
 					acceptedLen = mmInStream.read(tempInputBuffer);
-					Log.d("BTL",""+acceptedLen);
+					// Log.d("BTL",""+acceptedLen);
 					for (int i = 0; i < acceptedLen; i++) queueBuffer.add(tempInputBuffer[i]);// 从缓冲区读取到的数据，都存到队列里
 					
 

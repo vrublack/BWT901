@@ -20,6 +20,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.FileProvider;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
@@ -62,6 +63,8 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
             mService.setUiHandler(mHandler);
             mBound = true;
 
+            Log.d(TAG, "onServiceConnected");
+
             // update UI now
             if (mService.isRecording()) {
                 ((Button) findViewById(R.id.BtnRecord)).setText(R.string.stop);
@@ -91,7 +94,8 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
         }
     };
 
-    private final Handler mHandler = new Handler() {
+    @SuppressLint("HandlerLeak")
+	private final Handler mHandler = new Handler() {
 		// 匿名内部类写法，实现接口Handler的一些方法
 		@Override
 		public void handleMessage(Message msg) {
@@ -269,15 +273,16 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 	@Override
 	public void onStop() {
 		super.onStop();
-
+		Log.d(TAG, "onStop");
 		if (mService != null) {
-            if (mService.isRecording()) {
-		        mService.setUiHandler(null);
-            } else {
+			mService.setUiHandler(null);
+			if (!mService.isRecording()) {
                 // shut service down if not recording because we don't need it
                 stopService(new Intent(this, SensorService.class));
             }
-        }
+
+            unbindService(connection);
+		}
 	}
 
 	public BluetoothDevice device;

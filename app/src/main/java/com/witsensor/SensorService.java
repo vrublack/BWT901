@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 import static com.witsensor.DataMonitor.MESSAGE_DEVICE_NAME;
@@ -42,6 +43,7 @@ public class SensorService extends Service {
                 case MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
                         case BluetoothReader.STATE_CONNECTED:
+                            Log.d(SensorService.class.getCanonicalName(), "STATE_CONNECTED");
                             isConnected = true;
                             break;
                         case BluetoothReader.STATE_CONNECTING:
@@ -49,6 +51,8 @@ public class SensorService extends Service {
                         case BluetoothReader.STATE_LISTEN:
                         case BluetoothReader.STATE_NONE:
                             isConnected = false;
+                            isRecording = false;
+                            Log.d(SensorService.class.getCanonicalName(), "STATE_NONE");
                             passNotification(getString(R.string.title_not_connected));
                             break;
                     }
