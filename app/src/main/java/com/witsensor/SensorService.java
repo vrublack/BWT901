@@ -44,6 +44,7 @@ public class SensorService extends Service {
                     switch (msg.arg1) {
                         case BluetoothReader.STATE_CONNECTED:
                             Log.d(SensorService.class.getCanonicalName(), "STATE_CONNECTED");
+                            passNotification(getString(R.string.title_connected_to) + mConnectedDeviceName);
                             isConnected = true;
                             break;
                         case BluetoothReader.STATE_CONNECTING:
@@ -54,6 +55,10 @@ public class SensorService extends Service {
                             isRecording = false;
                             Log.d(SensorService.class.getCanonicalName(), "STATE_NONE");
                             passNotification(getString(R.string.title_not_connected));
+                            break;
+                        case BluetoothReader.STATE_RECONNECTING:
+                            Log.d(SensorService.class.getCanonicalName(), "STATE_RECONNECTING");
+                            passNotification(getString(R.string.reconnecting));
                             break;
                     }
                     break;

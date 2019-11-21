@@ -38,16 +38,22 @@ public class BluetoothReader {
 	private ConnectThread mConnectThread;// 连接一个设备的进程
 	public ConnectedThread mConnectedThread;// 已经连接之后的管理进程
 	private int mState;// 当前状态
+    private int reconnectTries;
+    private final static int MAX_RECONNECT_TRIES = 5;
 
 	// 指明连接状态的常量
 	public static final int STATE_NONE = 0;
 	public static final int STATE_LISTEN = 1;
 	public static final int STATE_CONNECTING = 2;
 	public static final int STATE_CONNECTED = 3;
+    public static final int STATE_RECONNECTING = 4;
 
 	private Queue<Byte> queueBuffer = new LinkedList<Byte>();
 
 	private byte[] packBuffer = new byte[11];
+
+	BluetoothDevice mBluetoothDevice;
+
 
 	public BluetoothReader(Context context, Handler handler) {
 		mAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -86,6 +92,7 @@ public class BluetoothReader {
 	}
 
 	public synchronized void connect(BluetoothDevice device) {
+	    reconnectTries = 0;
 
 		// Cancel any thread currently running a connection
 		if (mConnectedThread != null) {
@@ -97,9 +104,37 @@ public class BluetoothReader {
 		mConnectThread = new ConnectThread(device);
 		mConnectThread.start();
 		setState(STATE_CONNECTING);
+
+		mBluetoothDevice = device;
 	}
 
-	public synchronized void connected(BluetoothSocket socket,BluetoothDevice device) {
+    private synchronized void reconnect() {
+	    if (mBluetoothDevice == null)
+	        return;
+	    if (reconnectTries >= MAX_RECONNECT_TRIES)
+	        return;
+	    reconnectTries++;
+	    setState(STATE_RECONNECTING);
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		// Cancel any thread currently running a connection
+		if (mConnectedThread != null) {
+			mConnectedThread.cancel();
+			mConnectedThread = null;
+		}
+
+		// Start the thread to connect with the given device
+		mConnectThread = new ConnectThread(mBluetoothDevice);
+		mConnectThread.start();
+		mState = STATE_CONNECTING;
+    }
+
+
+    private synchronized void connected(BluetoothSocket socket, BluetoothDevice device) {
 
 		// Cancel the thread that completed the connection
 		if (mConnectThread != null) {
@@ -127,6 +162,7 @@ public class BluetoothReader {
 		setState(STATE_CONNECTED);
 	}
 
+
 	public synchronized void stop() {
 
 		if (mConnectedThread != null) {
@@ -150,6 +186,7 @@ public class BluetoothReader {
 		bundle.putString("toast", mContext.getString(R.string.connect_failed));
 		msg.setData(bundle);
 		mHandler.sendMessage(msg);
+        reconnect();
 	}
 
 	private void connectionLost() {
@@ -159,7 +196,8 @@ public class BluetoothReader {
 		bundle.putString("toast", "Device connection was lost");
 		msg.setData(bundle);
 		mHandler.sendMessage(msg);
-	}
+        reconnect();
+    }
 
 	/**
 	 * This thread runs while listening for incoming connections. It behaves
@@ -181,6 +219,7 @@ public class BluetoothReader {
 
 		public void run() {
 			setName("AcceptThread");
+			Log.d(BluetoothReader.class.getCanonicalName(), "AcceptThread");
 			BluetoothSocket socket = null;
 
 			// Listen to the server socket if we're not connected
@@ -268,7 +307,6 @@ public class BluetoothReader {
                     e.printStackTrace();
                 }
 				
-				BluetoothReader.this.start();// 引用来说明要调用的是外部类的方法 run
 				return;
 			}
 			

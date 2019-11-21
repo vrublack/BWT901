@@ -63,7 +63,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
             mService.setUiHandler(mHandler);
             mBound = true;
 
-            Log.d(TAG, "onServiceConnected");
+            Log.d(DataMonitor.class.getCanonicalName(), "onServiceConnected");
 
             // update UI now
             if (mService.isRecording()) {
@@ -78,13 +78,6 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
                 mTitle.setText(getString(R.string.title_connected_to) + mService.getConnectedDeviceName());
             } else {
                 mTitle.setText(R.string.title_not_connected);
-
-                // TODO remember device and don't prompt every time
-                try {
-                    Intent serverIntent = new Intent(DataMonitor.this, DeviceListActivity.class);
-                    startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
-                } catch (Exception err) {
-                }
             }
         }
 
@@ -118,7 +111,9 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
                     ((Button) findViewById(R.id.BtnOutput)).setEnabled(false);
                     mTitle.setText(R.string.title_not_connected);
 					break;
-				}
+                case BluetoothReader.STATE_RECONNECTING:
+                    mTitle.setText(R.string.reconnecting);
+                }
 				break;
 			case MESSAGE_READ:
 				try {
@@ -246,7 +241,18 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 		}
 		catch (Exception err){}
 
-		if (!SensorService.isRunning) {
+        // TODO remember device and don't prompt every time
+        try {
+            Intent serverIntent = new Intent(DataMonitor.this, DeviceListActivity.class);
+            startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+        } catch (Exception err) {
+        }
+    }
+
+	public synchronized void onResume() {
+		super.onResume();
+
+        if (!SensorService.isRunning) {
             Intent serviceIntent = new Intent(this, SensorService.class);
             if (Build.VERSION.SDK_INT >= 26) {
                 startForegroundService(serviceIntent);
@@ -257,32 +263,27 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 
         // maybe the service was running in the background but the activity was destroyed
         bindService(new Intent(this, SensorService.class), connection, Context.BIND_AUTO_CREATE);
-
-    }
-
-	public synchronized void onResume() {
-		super.onResume();
     }
 
 	@Override
 	public synchronized void onPause() {
 		super.onPause();
 
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
-		Log.d(TAG, "onStop");
-		if (mService != null) {
-			mService.setUiHandler(null);
-			if (!mService.isRecording()) {
+        Log.d(DataMonitor.class.getCanonicalName(), "onStop");
+        if (mService != null) {
+            mService.setUiHandler(null);
+            if (!mService.isRecording()) {
                 // shut service down if not recording because we don't need it
                 stopService(new Intent(this, SensorService.class));
             }
 
             unbindService(connection);
-		}
+        }
+    }
+
+	@Override
+	public void onStop() {
+		super.onStop();
 	}
 
 	public BluetoothDevice device;

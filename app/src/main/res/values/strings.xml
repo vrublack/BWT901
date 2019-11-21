@@ -60,4 +60,5 @@
     <string name="sampling_rate">Sampling rate</string>
     <string name="recording">Recording…</string>
     <string name="not_recording">Not recording</string>
+    <string name="reconnecting">Reconnecting…</string>
 </resources>
