@@ -334,7 +334,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 	public void GetSelectedFields(){
 		SharedPreferences mySharedPreferences= getSharedPreferences("Output", Activity.MODE_PRIVATE);
 		try{
-			int iOut = Integer.parseInt(mySharedPreferences.getString("Out", "15"));
+			int iOut = mySharedPreferences.getInt("Out", 15);
 			for (int i=0;i<selected.length;i++){
 				selected[i]=((iOut>>i)&0x01)==0x01;
 			}
@@ -358,22 +358,18 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 				.setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface arg0, int arg1) {
-						byte[] buffer = new byte[5];
-						buffer[0] = (byte) 0xff;
-						buffer[1] = (byte) 0xaa;
-						buffer[2] = (byte) 0x02;
 						short sOut = 0;
 						for (int i = 0; i < selected.length; i++) {
 							if (selected[i]) sOut |= 0x01 << i;
 						}
-						buffer[3] = (byte) (sOut&0xff);
-						buffer[4] = (byte) (sOut>>8);
 						SharedPreferences mySharedPreferences= getSharedPreferences("Output",Activity.MODE_PRIVATE);
 						SharedPreferences.Editor editor = mySharedPreferences.edit();
-						editor.putString("Out",String.format("%d",sOut));
+						editor.putInt("Out", sOut);
 						editor.commit();
+						if (mService != null)
+							mService.updateFields();
+
 						RefreshButtonStatus();
-                        mService.getBluetoothReader().Send(buffer);
 					}
 				})
 				.setNegativeButton(R.string.cancel, null)
@@ -385,7 +381,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 
 	    final String[] options = new String[] {"0.1Hz", "0.5Hz", "1Hz", "2Hz", "5Hz", "10Hz", "20Hz", "50Hz", "100Hz", "200Hz", "Single", "No output"};
         SharedPreferences mySharedPreferences= getSharedPreferences("Output", Activity.MODE_PRIVATE);
-        mSampleRate = Integer.parseInt(mySharedPreferences.getString("Rate", "5"));
+        mSampleRate = mySharedPreferences.getInt("Rate", 5);
 
         new AlertDialog.Builder(this)
                 .setTitle(R.string.sampling_rate)
@@ -399,17 +395,13 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
                 .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface arg0, int arg1) {
-                        byte[] buffer = new byte[5];
-                        buffer[0] = (byte) 0xff;
-                        buffer[1] = (byte) 0xaa;
-                        buffer[2] = (byte) 0x03;
-                        buffer[3] = (byte) (mSampleRate + 1);
-                        buffer[4] = (byte) 0x00;
-                        SharedPreferences mySharedPreferences= getSharedPreferences("Output",Activity.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = mySharedPreferences.edit();
-                        editor.putString("Rate", Integer.toString(mSampleRate));
-                        editor.commit();
-                        mService.getBluetoothReader().Send(buffer);
+						SharedPreferences mySharedPreferences= getSharedPreferences("Output",Activity.MODE_PRIVATE);
+						SharedPreferences.Editor editor = mySharedPreferences.edit();
+						editor.putInt("Rate", mSampleRate);
+						editor.commit();
+
+						if (mService != null)
+                    		mService.updateRate();
                     }
                 })
                 .setNegativeButton(R.string.cancel, null)

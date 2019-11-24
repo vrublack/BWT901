@@ -1,14 +1,18 @@
 package com.witsensor;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -44,7 +48,8 @@ public class SensorService extends Service {
                     switch (msg.arg1) {
                         case BluetoothReader.STATE_CONNECTED:
                             Log.d(SensorService.class.getCanonicalName(), "STATE_CONNECTED");
-                            // passNotification(getString(R.string.title_connected_to) + mConnectedDeviceName);
+                            updateFields();
+                            updateRate();
                             isConnected = true;
                             break;
                         case BluetoothReader.STATE_CONNECTING:
@@ -139,6 +144,18 @@ public class SensorService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.sensor_status_channel);
+            String description = getString(R.string.sensor_status_channel);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
         startForeground(NOTIFICATION_ID, getNotification(""));
 
         if (mBluetoothReader != null) {
@@ -176,6 +193,31 @@ public class SensorService extends Service {
 
     public void setUiHandler(Handler handler) {
         mUiHandler = handler;
+    }
+
+    /**
+     * Reads sampling rate from shared preferences and updates the sensor
+     */
+    public void updateRate() {
+        int sampleRate = getSharedPreferences("Output", Activity.MODE_PRIVATE).getInt("Rate", 5);
+        byte[] buffer = new byte[5];
+        buffer[0] = (byte) 0xff;
+        buffer[1] = (byte) 0xaa;
+        buffer[2] = (byte) 0x03;
+        buffer[3] = (byte) (sampleRate + 1);
+        buffer[4] = (byte) 0x00;
+        mBluetoothReader.Send(buffer);
+    }
+
+    public void updateFields() {
+        short sOut = (short) getSharedPreferences("Output", Activity.MODE_PRIVATE).getInt("Out", 15);
+        byte[] buffer = new byte[5];
+        buffer[0] = (byte) 0xff;
+        buffer[1] = (byte) 0xaa;
+        buffer[2] = (byte) 0x02;
+        buffer[3] = (byte) (sOut&0xff);
+        buffer[4] = (byte) (sOut>>8);
+        mBluetoothReader.Send(buffer);
     }
 
     @Override
