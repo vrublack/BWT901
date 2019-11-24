@@ -49,7 +49,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 
 	boolean[] selected;
 	String[] SelectItemFields;
-
+	private String toConnectTo;
     private SensorService mService;
     private boolean mBound;
     private ServiceConnection connection = new ServiceConnection() {
@@ -62,6 +62,11 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
             mService = binder.getService();
             mService.setUiHandler(mHandler);
             mBound = true;
+
+            if (toConnectTo != null) {
+				mService.connectToDevice(toConnectTo);
+				toConnectTo = null;
+			}
 
             Log.d(DataMonitor.class.getCanonicalName(), "onServiceConnected");
 
@@ -99,7 +104,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
                     ((Button) findViewById(R.id.BtnRecord)).setEnabled(true);
                     ((Button) findViewById(R.id.BtnRate)).setEnabled(true);
                     ((Button) findViewById(R.id.BtnOutput)).setEnabled(true);
-                    mTitle.setText(getString(R.string.title_connected_to) + mService.getConnectedDeviceName());
+                    // mTitle.setText(getString(R.string.title_connected_to) + mService.getConnectedDeviceName());
 					break;
 				case BluetoothReader.STATE_CONNECTING:
 					mTitle.setText(R.string.title_connecting);
@@ -116,79 +121,11 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
                 }
 				break;
 			case MESSAGE_READ:
-				try {
-					float [] fData=msg.getData().getFloatArray("Data");
-					switch (RunMode){
-						case 0:
-							switch (iCurrentGroup){
-								case 0:
-									((TextView)findViewById(R.id.tvNum1)).setText(msg.getData().getString("Date"));
-									((TextView)findViewById(R.id.tvNum2)).setText(msg.getData().getString("Time"));
-									break;
-								case 1:
-									((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 10.2fg", fData[0]));
-									((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 10.2fg", fData[1]));
-									((TextView)findViewById(R.id.tvNum3)).setText(String.format("% 10.2fg", fData[2]));
-									((TextView)findViewById(R.id.tvNum4)).setText(String.format("% 10.2f℃", fData[17]));
-									break;
-								case 2:
-									((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 10.2f°/s", fData[3]));
-									((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 10.2f°/s", fData[4]));
-									((TextView)findViewById(R.id.tvNum3)).setText(String.format("% 10.2f°/s", fData[5]));
-									((TextView)findViewById(R.id.tvNum4)).setText(String.format("% 10.2f℃", fData[17]));
-									break;
-								case 3:
-									((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 10.2f°", fData[6]));
-									((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 10.2f°", fData[7]));
-									((TextView)findViewById(R.id.tvNum3)).setText(String.format("% 10.2f°", fData[8]));
-									((TextView)findViewById(R.id.tvNum4)).setText(String.format("% 10.2f℃", fData[17]));
-									break;
-								case 4://磁场
-									((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 10.0f", fData[9]));
-									((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 10.0f", fData[10]));
-									((TextView)findViewById(R.id.tvNum3)).setText(String.format("% 10.0f", fData[11]));
-									((TextView)findViewById(R.id.tvNum4)).setText(String.format("% 10.2f℃", fData[17]));
-									break;
-								case 5://端口
-									((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 10.2f", fData[12]));
-									((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 10.2f", fData[13]));
-									((TextView)findViewById(R.id.tvNum3)).setText(String.format("% 10.2f", fData[14]));
-									((TextView)findViewById(R.id.tvNum4)).setText(String.format("% 10.2f", fData[15]));
-									break;
-								case 6://气压
-									((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 10.2fPa", fData[16]));
-									((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 10.2fm", fData[17]));
-									break;
-								case 7://经纬度
-									((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 14.6f°", fData[18]));
-									((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 14.6f°", fData[19]));
-									break;
-								case 8://地速
-									((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 10.2m", fData[20]));
-									((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 10.2°", fData[21]));
-									((TextView)findViewById(R.id.tvNum3)).setText(String.format("% 10.2m/s", fData[22]));
-									break;
-								case 9://四元数
-									((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 7.3f", fData[23]));
-									((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 7.3f", fData[24]));
-									((TextView)findViewById(R.id.tvNum3)).setText(String.format("% 7.3f", fData[25]));
-									((TextView)findViewById(R.id.tvNum4)).setText(String.format("% 7.3f", fData[26]));
-									break;
-								case 10:
-									((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 5.0f", fData[27]));
-									((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 7.1f", fData[28]));
-									((TextView)findViewById(R.id.tvNum3)).setText(String.format("% 7.1f", fData[29]));
-									((TextView)findViewById(R.id.tvNum4)).setText(String.format("% 7.1f", fData[30]));
-									break;
-							}
-							break;
-					}
-				} catch (Exception e) {
-					// TODO: handle exception
-				}
+				updateSensorData(msg);
 				break;
 			case MESSAGE_DEVICE_NAME:
 				Toast.makeText(getApplicationContext(),"Connected to " + msg.getData().getString("device_name"), Toast.LENGTH_SHORT).show();
+				mTitle.setText(getString(R.string.title_connected_to) + mService.getConnectedDeviceName());
 				break;
 			case MESSAGE_TOAST:
 				Toast.makeText(getApplicationContext(),msg.getData().getString("toast"), Toast.LENGTH_SHORT).show();
@@ -196,6 +133,80 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 			}
 		}
 	};
+
+
+	private void updateSensorData(Message msg) {
+		try {
+			float [] fData=msg.getData().getFloatArray("Data");
+			switch (RunMode){
+				case 0:
+					switch (iCurrentGroup){
+						case 0:
+							((TextView)findViewById(R.id.tvNum1)).setText(msg.getData().getString("Date"));
+							((TextView)findViewById(R.id.tvNum2)).setText(msg.getData().getString("Time"));
+							break;
+						case 1:
+							((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 10.2fg", fData[0]));
+							((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 10.2fg", fData[1]));
+							((TextView)findViewById(R.id.tvNum3)).setText(String.format("% 10.2fg", fData[2]));
+							((TextView)findViewById(R.id.tvNum4)).setText(String.format("% 10.2f℃", fData[17]));
+							break;
+						case 2:
+							((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 10.2f°/s", fData[3]));
+							((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 10.2f°/s", fData[4]));
+							((TextView)findViewById(R.id.tvNum3)).setText(String.format("% 10.2f°/s", fData[5]));
+							((TextView)findViewById(R.id.tvNum4)).setText(String.format("% 10.2f℃", fData[17]));
+							break;
+						case 3:
+							((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 10.2f°", fData[6]));
+							((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 10.2f°", fData[7]));
+							((TextView)findViewById(R.id.tvNum3)).setText(String.format("% 10.2f°", fData[8]));
+							((TextView)findViewById(R.id.tvNum4)).setText(String.format("% 10.2f℃", fData[17]));
+							break;
+						case 4://磁场
+							((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 10.0f", fData[9]));
+							((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 10.0f", fData[10]));
+							((TextView)findViewById(R.id.tvNum3)).setText(String.format("% 10.0f", fData[11]));
+							((TextView)findViewById(R.id.tvNum4)).setText(String.format("% 10.2f℃", fData[17]));
+							break;
+						case 5://端口
+							((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 10.2f", fData[12]));
+							((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 10.2f", fData[13]));
+							((TextView)findViewById(R.id.tvNum3)).setText(String.format("% 10.2f", fData[14]));
+							((TextView)findViewById(R.id.tvNum4)).setText(String.format("% 10.2f", fData[15]));
+							break;
+						case 6://气压
+							((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 10.2fPa", fData[16]));
+							((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 10.2fm", fData[17]));
+							break;
+						case 7://经纬度
+							((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 14.6f°", fData[18]));
+							((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 14.6f°", fData[19]));
+							break;
+						case 8://地速
+							((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 10.2m", fData[20]));
+							((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 10.2°", fData[21]));
+							((TextView)findViewById(R.id.tvNum3)).setText(String.format("% 10.2m/s", fData[22]));
+							break;
+						case 9://四元数
+							((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 7.3f", fData[23]));
+							((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 7.3f", fData[24]));
+							((TextView)findViewById(R.id.tvNum3)).setText(String.format("% 7.3f", fData[25]));
+							((TextView)findViewById(R.id.tvNum4)).setText(String.format("% 7.3f", fData[26]));
+							break;
+						case 10:
+							((TextView)findViewById(R.id.tvNum1)).setText(String.format("% 5.0f", fData[27]));
+							((TextView)findViewById(R.id.tvNum2)).setText(String.format("% 7.1f", fData[28]));
+							((TextView)findViewById(R.id.tvNum3)).setText(String.format("% 7.1f", fData[29]));
+							((TextView)findViewById(R.id.tvNum4)).setText(String.format("% 7.1f", fData[30]));
+							break;
+					}
+					break;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
 
 	private static final int REQUEST_CONNECT_DEVICE = 1;
     private int mSampleRate;
@@ -214,7 +225,13 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 		SelectItemFields = new String[]{getString(R.string.time),getString(R.string.acc),getString(R.string.angv),getString(R.string.ang),
 				getString(R.string.magn),getString(R.string.port), getString(R.string.pressure), getString(R.string.long_lat), getString(R.string.speed), getString(R.string.quaternion), getString(R.string.val16)};
 
-    }
+		// TODO remember device and don't prompt every time
+		try {
+			Intent serverIntent = new Intent(DataMonitor.this, DeviceListActivity.class);
+			startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+		} catch (Exception err) {
+		}
+	}
 
 	public void onClickedBTSet(View v){
 		try {
@@ -241,25 +258,22 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 		}
 		catch (Exception err){}
 
-        // TODO remember device and don't prompt every time
-        try {
-            Intent serverIntent = new Intent(DataMonitor.this, DeviceListActivity.class);
-            startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
-        } catch (Exception err) {
-        }
     }
 
 	public synchronized void onResume() {
 		super.onResume();
 
-        if (!SensorService.isRunning) {
+        if (mService == null) {
+        	Log.d(TAG, "Starting service");
             Intent serviceIntent = new Intent(this, SensorService.class);
             if (Build.VERSION.SDK_INT >= 26) {
                 startForegroundService(serviceIntent);
             } else {
                 startService(serviceIntent);
             }
-        }
+        } else {
+			Log.d(TAG, "Service already running");
+		}
 
         // maybe the service was running in the background but the activity was destroyed
         bindService(new Intent(this, SensorService.class), connection, Context.BIND_AUTO_CREATE);
@@ -276,8 +290,8 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
                 // shut service down if not recording because we don't need it
                 stopService(new Intent(this, SensorService.class));
             }
-
             unbindService(connection);
+			mService = null;
         }
     }
 
@@ -291,10 +305,13 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
 		case REQUEST_CONNECT_DEVICE:// When DeviceListActivity returns with a device to connect
-			if (resultCode == Activity.RESULT_OK) {
+			if (data != null) {
 				String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);// Get the device MAC address
-				device = mService.getBluetoothAdapter().getRemoteDevice(address);// Get the BLuetoothDevice object
-				mService.getBluetoothReader().connect(device);// Attempt to connect to the device
+				toConnectTo = address;
+				if (resultCode == Activity.RESULT_OK && mService != null) {
+					mService.connectToDevice(address);
+					toConnectTo = null;
+				}
 			}
 			break;
 		}

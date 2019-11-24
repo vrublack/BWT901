@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
@@ -24,7 +25,6 @@ import static com.witsensor.DataMonitor.MESSAGE_TOAST;
 public class SensorService extends Service {
     public static final String CHANNEL_ID = "SensorServiceChannel";
     private static final int NOTIFICATION_ID = 1;
-    public static boolean isRunning = false;
     private BluetoothReader mBluetoothReader = null;
     private String mConnectedDeviceName = "(none)";
     private BluetoothAdapter mBluetoothAdapter = null;
@@ -44,7 +44,7 @@ public class SensorService extends Service {
                     switch (msg.arg1) {
                         case BluetoothReader.STATE_CONNECTED:
                             Log.d(SensorService.class.getCanonicalName(), "STATE_CONNECTED");
-                            passNotification(getString(R.string.title_connected_to) + mConnectedDeviceName);
+                            // passNotification(getString(R.string.title_connected_to) + mConnectedDeviceName);
                             isConnected = true;
                             break;
                         case BluetoothReader.STATE_CONNECTING:
@@ -54,7 +54,6 @@ public class SensorService extends Service {
                             isConnected = false;
                             isRecording = false;
                             Log.d(SensorService.class.getCanonicalName(), "STATE_NONE");
-                            passNotification(getString(R.string.title_not_connected));
                             break;
                         case BluetoothReader.STATE_RECONNECTING:
                             Log.d(SensorService.class.getCanonicalName(), "STATE_RECONNECTING");
@@ -66,6 +65,7 @@ public class SensorService extends Service {
                     break;
                 case MESSAGE_DEVICE_NAME:
                     mConnectedDeviceName = msg.getData().getString("device_name");
+                    passNotification(getString(R.string.title_connected_to) + mConnectedDeviceName);
                     break;
                 case MESSAGE_TOAST:
                     break;
@@ -106,6 +106,10 @@ public class SensorService extends Service {
         passNotification(getString(R.string.not_recording));
     }
 
+    public void connectToDevice(String address) {
+        mBluetoothReader.connect(mBluetoothAdapter.getRemoteDevice(address));// Attempt to connect to the device
+    }
+
     public boolean isConnected() {
         return isConnected;
     }
@@ -119,8 +123,6 @@ public class SensorService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        isRunning = true;
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
@@ -166,6 +168,12 @@ public class SensorService extends Service {
         notificationManager.notify(NOTIFICATION_ID, getNotification(msg));
     }
 
+    private void removeNotification() {
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Service.NOTIFICATION_SERVICE);
+        notificationManager.cancel(NOTIFICATION_ID);
+    }
+
     public void setUiHandler(Handler handler) {
         mUiHandler = handler;
     }
@@ -177,7 +185,7 @@ public class SensorService extends Service {
         if (mBluetoothReader != null)
             mBluetoothReader.stop();
 
-        isRunning = false;
+        removeNotification();
     }
 
     @Nullable

@@ -95,10 +95,7 @@ public class BluetoothReader {
 	    reconnectTries = 0;
 
 		// Cancel any thread currently running a connection
-		if (mConnectedThread != null) {
-			mConnectedThread.cancel();
-			mConnectedThread = null;
-		}
+		disconnect();
 
 		// Start the thread to connect with the given device
 		mConnectThread = new ConnectThread(device);
@@ -122,16 +119,23 @@ public class BluetoothReader {
 			e.printStackTrace();
 		}
 		// Cancel any thread currently running a connection
-		if (mConnectedThread != null) {
-			mConnectedThread.cancel();
-			mConnectedThread = null;
-		}
+		disconnect();
 
 		// Start the thread to connect with the given device
 		mConnectThread = new ConnectThread(mBluetoothDevice);
 		mConnectThread.start();
 		mState = STATE_CONNECTING;
     }
+
+	/**
+	 * Disconnects from connected device if connected
+	 */
+	public synchronized void disconnect() {
+		if (mConnectedThread != null) {
+			mConnectedThread.cancel();
+			mConnectedThread = null;
+		}
+	}
 
 
     private synchronized void connected(BluetoothSocket socket, BluetoothDevice device) {
@@ -186,7 +190,7 @@ public class BluetoothReader {
 		bundle.putString("toast", mContext.getString(R.string.connect_failed));
 		msg.setData(bundle);
 		mHandler.sendMessage(msg);
-        reconnect();
+        //reconnect();
 	}
 
 	private void connectionLost() {
@@ -196,7 +200,7 @@ public class BluetoothReader {
 		bundle.putString("toast", "Device connection was lost");
 		msg.setData(bundle);
 		mHandler.sendMessage(msg);
-        reconnect();
+        //reconnect();
     }
 
 	/**
