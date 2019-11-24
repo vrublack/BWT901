@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
@@ -225,20 +226,40 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 		SelectItemFields = new String[]{getString(R.string.time),getString(R.string.acc),getString(R.string.angv),getString(R.string.ang),
 				getString(R.string.magn),getString(R.string.port), getString(R.string.pressure), getString(R.string.long_lat), getString(R.string.speed), getString(R.string.quaternion), getString(R.string.val16)};
 
-		// TODO remember device and don't prompt every time
-		try {
-			Intent serverIntent = new Intent(DataMonitor.this, DeviceListActivity.class);
-			startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
-		} catch (Exception err) {
+		if (getDefaultDevice() == null) {
+			try {
+				Intent serverIntent = new Intent(DataMonitor.this, DeviceListActivity.class);
+				startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+			} catch (Exception err) {
+			}
+		} else {
+			toConnectTo = getDefaultDevice();
 		}
 	}
 
+	@Nullable
+	private String getDefaultDevice() {
+		return getSharedPreferences("Device", Activity.MODE_PRIVATE).getString("defaultDevice", null);
+	}
+
+	private void setDefaultDevice(String address) {
+		SharedPreferences mySharedPreferences = getSharedPreferences("Device", Activity.MODE_PRIVATE);
+		SharedPreferences.Editor editor = mySharedPreferences.edit();
+		editor.putString("defaultDevice", address);
+		editor.commit();
+	}
+
 	public void onClickedBTSet(View v){
-		try {
-			Intent serverIntent = new Intent(this, DeviceListActivity.class);
-			startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+    	if (mService != null && mService.isConnected()) {
+    		mService.disconnect();
+    		setDefaultDevice(null);
+		} else {
+			try {
+				Intent serverIntent = new Intent(this, DeviceListActivity.class);
+				startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+			} catch (Exception err) {
+			}
 		}
-		catch (Exception err){}
 	}
 	@SuppressLint("NewApi")
 	private void SelectFragment(int Index) {
@@ -263,7 +284,9 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 	public synchronized void onResume() {
 		super.onResume();
 
-        if (mService == null) {
+		toConnectTo = getDefaultDevice();
+
+		if (mService == null) {
         	Log.d(TAG, "Starting service");
             Intent serviceIntent = new Intent(this, SensorService.class);
             if (Build.VERSION.SDK_INT >= 26) {
@@ -308,6 +331,7 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 			if (data != null) {
 				String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);// Get the device MAC address
 				toConnectTo = address;
+				setDefaultDevice(address);
 				if (resultCode == Activity.RESULT_OK && mService != null) {
 					mService.connectToDevice(address);
 					toConnectTo = null;

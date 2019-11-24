@@ -220,13 +220,15 @@ public class SensorService extends Service {
         mBluetoothReader.Send(buffer);
     }
 
+    public void disconnect() {
+        if (mBluetoothReader != null)
+            mBluetoothReader.stop();
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        if (mBluetoothReader != null)
-            mBluetoothReader.stop();
-
+        disconnect();
         removeNotification();
     }
 
