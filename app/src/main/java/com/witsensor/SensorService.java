@@ -34,6 +34,7 @@ public class SensorService extends Service {
     private BluetoothAdapter mBluetoothAdapter = null;
     private boolean isRecording = false;
     private boolean isConnected = false;
+    public static boolean isRunning = false;
 
     private final IBinder binder = new SensorBinder();
 
@@ -129,6 +130,8 @@ public class SensorService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        isRunning = true;
+
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
             Toast.makeText(this, getString(R.string.msg1), Toast.LENGTH_LONG).show();
@@ -223,6 +226,8 @@ public class SensorService extends Service {
     public void disconnect() {
         if (mBluetoothReader != null)
             mBluetoothReader.stop();
+
+        isRunning = false;
     }
 
     @Override

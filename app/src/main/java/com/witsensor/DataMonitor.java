@@ -281,22 +281,23 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 
     }
 
+    private void startSensorService() {
+		Log.d(TAG, "Starting service");
+		Intent serviceIntent = new Intent(this, SensorService.class);
+		if (Build.VERSION.SDK_INT >= 26) {
+			startForegroundService(serviceIntent);
+		} else {
+			startService(serviceIntent);
+		}
+	}
+
 	public synchronized void onResume() {
 		super.onResume();
 
-		toConnectTo = getDefaultDevice();
-
-		if (mService == null) {
-        	Log.d(TAG, "Starting service");
-            Intent serviceIntent = new Intent(this, SensorService.class);
-            if (Build.VERSION.SDK_INT >= 26) {
-                startForegroundService(serviceIntent);
-            } else {
-                startService(serviceIntent);
-            }
-        } else {
-			Log.d(TAG, "Service already running");
-		}
+		if (!SensorService.isRunning) {
+			toConnectTo = getDefaultDevice();
+			startSensorService();
+        }
 
         // maybe the service was running in the background but the activity was destroyed
         bindService(new Intent(this, SensorService.class), connection, Context.BIND_AUTO_CREATE);
