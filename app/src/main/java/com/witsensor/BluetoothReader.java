@@ -514,7 +514,8 @@ public class BluetoothReader {
 			SaveState = -1;
 			break;
 		case 1:
-			myFile = new MyFile(new File(mContext.getExternalFilesDir(null), "Record.txt"));
+			String fname = generateFname();
+			myFile = new MyFile(new File(mContext.getExternalFilesDir(null), generateFname()));
 			DateFormat formatter = SimpleDateFormat.getDateTimeInstance();
 			Date curDate = new Date(System.currentTimeMillis());
 			String s=mContext.getString(R.string.start_time)+formatter.format(curDate)+"\n" ;
@@ -541,6 +542,13 @@ public class BluetoothReader {
 			break;
 		} 		
 	}
+
+	private String generateFname() {
+		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd__HH_mm_ss");
+		Date date = new Date();
+		return "Recording__" + dateFormat.format(new Date()) + ".txt";
+	}
+
 	public void setRecord(boolean record)
 	{
 		if (record) SaveState = 1;
