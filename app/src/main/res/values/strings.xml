@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">mini IWU</string>
+    <string name="app_name">BWT901</string>
     <string name="not_connected">"You are not connected to a device   "</string>
     <string name="bt_not_enabled_leaving">Bluetooth is off</string>
     <string name="title_connecting">Connecting...</string>
