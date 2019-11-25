@@ -226,14 +226,16 @@ public class DataMonitor extends FragmentActivity implements OnClickListener {
 		SelectItemFields = new String[]{getString(R.string.time),getString(R.string.acc),getString(R.string.angv),getString(R.string.ang),
 				getString(R.string.magn),getString(R.string.port), getString(R.string.pressure), getString(R.string.long_lat), getString(R.string.speed), getString(R.string.quaternion), getString(R.string.val16)};
 
-		if (getDefaultDevice() == null) {
-			try {
-				Intent serverIntent = new Intent(DataMonitor.this, DeviceListActivity.class);
-				startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
-			} catch (Exception err) {
+		if (!SensorService.isRunning) {
+			if (getDefaultDevice() == null) {
+				try {
+					Intent serverIntent = new Intent(DataMonitor.this, DeviceListActivity.class);
+					startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+				} catch (Exception err) {
+				}
+			} else {
+				toConnectTo = getDefaultDevice();
 			}
-		} else {
-			toConnectTo = getDefaultDevice();
 		}
 	}
 
