@@ -94,7 +94,19 @@ public class ChartActivity extends Activity {
             zValues.add(new Entry(seconds, angles.get(i)[3]));
         }
 
-        makeChart(xValues, yValues, zValues);
+        float calibX = 0;
+        float calibY = 0;
+        float calibZ = 0;
+        for (int i = 0; i < calibAngles.size(); i++) {
+            calibX += calibAngles.get(i)[1];
+            calibY += calibAngles.get(i)[2];
+            calibZ += calibAngles.get(i)[3];
+        }
+        calibX /= calibAngles.size();
+        calibY /= calibAngles.size();
+        calibZ /= calibAngles.size();
+
+        makeChart(xValues, yValues, zValues, calibX, calibY, calibZ);
     }
 
     private List<float[]> getAngles(File file) {
@@ -136,8 +148,10 @@ public class ChartActivity extends Activity {
         return result;
     }
 
-    private void makeChart(List<Entry> x, List<Entry> y, List<Entry> z) {
+    private void makeChart(List<Entry> x, List<Entry> y, List<Entry> z, float xCalib, float yCalib, float zCalib) {
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        float minTime = x.get(0).getX();
+        float maxTime = x.get(x.size() - 1).getX();
 
         LineDataSet setX;
         setX = new LineDataSet(x, "x");
@@ -149,6 +163,7 @@ public class ChartActivity extends Activity {
         setX.setDrawCircleHole(false);
         setX.setValueTextSize(9f);
         dataSets.add(setX);
+        dataSets.add(getCalibLine("x calib", Color.rgb(0xe0, 0, 0), xCalib, minTime, maxTime));
 
         LineDataSet setY;
         setY = new LineDataSet(y, "y");
@@ -160,6 +175,7 @@ public class ChartActivity extends Activity {
         setY.setDrawCircleHole(false);
         setY.setValueTextSize(9f);
         dataSets.add(setY);
+        dataSets.add(getCalibLine("y calib", Color.rgb(0, 0, 0xe0), yCalib, minTime, maxTime));
 
         LineDataSet setZ;
         setZ = new LineDataSet(z, "z");
@@ -171,9 +187,26 @@ public class ChartActivity extends Activity {
         setZ.setDrawCircleHole(false);
         setZ.setValueTextSize(9f);
         dataSets.add(setZ);
+        dataSets.add(getCalibLine("z calib", Color.rgb(0, 0xe0, 0), zCalib, minTime, maxTime));
 
         LineData data = new LineData(dataSets);
         mChart.setData(data);
+    }
+
+    private LineDataSet getCalibLine(String label, int color, float value, float minTime, float maxTime) {
+        LineDataSet s;
+        ArrayList<Entry> vals = new ArrayList<>();
+        vals.add(new Entry(minTime, value));
+        vals.add(new Entry(maxTime, value));
+        s = new LineDataSet(vals, label);
+        s.setDrawIcons(false);
+        s.setColor(color);
+        s.setCircleColor(color);
+        s.setLineWidth(2f);
+        s.setCircleRadius(3f);
+        s.setDrawCircleHole(false);
+        s.setValueTextSize(9f);
+        return s;
     }
 
 }
