@@ -274,6 +274,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:id="@+id/buttonB"
+            android:onClick="ControlClick"
+            android:text="@string/chart"
             android:background="@drawable/ic_preference_single_normal" />
 
     </LinearLayout>
