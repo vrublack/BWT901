@@ -3,12 +3,14 @@ package com.witsensor;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.util.Pair;
 import android.widget.Toast;
@@ -29,8 +31,10 @@ import com.github.mikephil.charting.utils.Utils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -53,10 +57,44 @@ public class ChartActivity extends Activity {
         mChart.setTouchEnabled(true);
         mChart.setPinchZoom(true);
 
-        setUpCharts();
+        final String fname = setUpCharts();
+
+        if (fname != null) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    saveToPath("chart_" + fname);
+                }
+            }, 2000);
+        }
     }
 
-    private void setUpCharts() {
+    public boolean saveToPath(String title) {
+
+        Bitmap b = mChart.getChartBitmap();
+
+        OutputStream stream = null;
+        try {
+            stream = new FileOutputStream(getExternalFilesDir(null).getPath() + "/" + title
+                    + ".png");
+
+            /*
+             * Write bitmap to file using JPEG or PNG and 40% quality hint for
+             * JPEG.
+             */
+            b.compress(Bitmap.CompressFormat.PNG, 80, stream);
+
+            stream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+
+    private String setUpCharts() {
         File[] files = getExternalFilesDir(null).listFiles();
 
         List<Pair<Date, File>> allDates = new ArrayList<>();
@@ -82,7 +120,7 @@ public class ChartActivity extends Activity {
 
         if (allDates.size() < 2) {
             Toast.makeText(this, "Need calibration file", Toast.LENGTH_LONG).show();
-            return;
+            return null;
         }
 
         File calibrationFile = allDates.get(allDates.size() - 2).second;
@@ -114,6 +152,8 @@ public class ChartActivity extends Activity {
         calibZ /= calibAngles.size();
 
         makeChart(xValues, yValues, zValues, calibX, calibY, calibZ);
+
+        return dataFile.getName();
     }
 
     private List<float[]> getAngles(File file) {
