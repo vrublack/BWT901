@@ -13,11 +13,18 @@ import android.support.v4.content.ContextCompat;
 import android.util.Pair;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.charts.ScatterChart;
+import com.github.mikephil.charting.data.CombinedData;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.ScatterData;
+import com.github.mikephil.charting.data.ScatterDataSet;
+import com.github.mikephil.charting.interfaces.datasets.IDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.IScatterDataSet;
 import com.github.mikephil.charting.utils.Utils;
 
 import java.io.BufferedReader;
@@ -35,7 +42,7 @@ import java.util.List;
 
 public class ChartActivity extends Activity {
 
-    private LineChart mChart;
+    private CombinedChart mChart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,47 +156,45 @@ public class ChartActivity extends Activity {
     }
 
     private void makeChart(List<Entry> x, List<Entry> y, List<Entry> z, float xCalib, float yCalib, float zCalib) {
-        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        ArrayList<ILineDataSet> calibData = new ArrayList<>();
+        ArrayList<IScatterDataSet> actualData = new ArrayList<>();
         float minTime = x.get(0).getX();
         float maxTime = x.get(x.size() - 1).getX();
+        float pSize = 3f;
 
-        LineDataSet setX;
-        setX = new LineDataSet(x, "x");
+        ScatterDataSet setX;
+        setX = new ScatterDataSet(x, "x");
         setX.setDrawIcons(false);
         setX.setColor(Color.RED);
-        setX.setCircleColor(Color.RED);
-        setX.setLineWidth(1f);
-        setX.setCircleRadius(3f);
-        setX.setDrawCircleHole(false);
         setX.setValueTextSize(9f);
-        dataSets.add(setX);
-        dataSets.add(getCalibLine("x calib", Color.rgb(0xe0, 0, 0), xCalib, minTime, maxTime));
+        setX.setScatterShape(ScatterChart.ScatterShape.CIRCLE);
+        setX.setScatterShapeSize(pSize);
+        actualData.add(setX);
+        calibData.add(getCalibLine("x calib", Color.rgb(0xe0, 0, 0), xCalib, minTime, maxTime));
 
-        LineDataSet setY;
-        setY = new LineDataSet(y, "y");
+        ScatterDataSet setY;
+        setY = new ScatterDataSet(y, "y");
         setY.setDrawIcons(false);
         setY.setColor(Color.BLUE);
-        setY.setCircleColor(Color.BLUE);
-        setY.setLineWidth(1f);
-        setY.setCircleRadius(3f);
-        setY.setDrawCircleHole(false);
         setY.setValueTextSize(9f);
-        dataSets.add(setY);
-        dataSets.add(getCalibLine("y calib", Color.rgb(0, 0, 0xe0), yCalib, minTime, maxTime));
+        setY.setScatterShape(ScatterChart.ScatterShape.CIRCLE);
+        setY.setScatterShapeSize(pSize);
+        actualData.add(setY);
+        calibData.add(getCalibLine("y calib", Color.rgb(0, 0, 0xe0), yCalib, minTime, maxTime));
 
-        LineDataSet setZ;
-        setZ = new LineDataSet(z, "z");
+        ScatterDataSet setZ;
+        setZ = new ScatterDataSet(z, "z");
         setZ.setDrawIcons(false);
         setZ.setColor(Color.GREEN);
-        setZ.setCircleColor(Color.GREEN);
-        setZ.setLineWidth(1f);
-        setZ.setCircleRadius(3f);
-        setZ.setDrawCircleHole(false);
         setZ.setValueTextSize(9f);
-        dataSets.add(setZ);
-        dataSets.add(getCalibLine("z calib", Color.rgb(0, 0xe0, 0), zCalib, minTime, maxTime));
+        setZ.setScatterShape(ScatterChart.ScatterShape.CIRCLE);
+        setZ.setScatterShapeSize(pSize);
+        actualData.add(setZ);
+        calibData.add(getCalibLine("z calib", Color.rgb(0, 0xe0, 0), zCalib, minTime, maxTime));
 
-        LineData data = new LineData(dataSets);
+        CombinedData data = new CombinedData();
+        data.setData(new LineData(calibData));
+        data.setData(new ScatterData(actualData));
         mChart.setData(data);
     }
 
